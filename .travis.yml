@@ -1,0 +1,21 @@
+  
+language: python
+
+python:
+  - "2.7"
+  - "3.5"
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install g++
+  - sudo apt-get install libvtk6-dev
+  - ln -s /usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-6.0.so libvtkCommonDataModel.so
+  - ln -s /usr/lib/x86_64-linux-gnu/libvtkCommonCore-6.0.so libvtkCommonCore.so
+  - ln -s /usr/lib/x86_64-linux-gnu/libvtkIOXML-6.0.so libvtkIOXML.so
+  - git clone https://github.com/mesoscale/mmsp.git
+
+install:
+  - pip install .
+
+script:
+  - python -m unittest discover test/
