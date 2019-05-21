@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.mat4D cimport Mat4D
+from apal.cython.mat4D cimport Mat4D
 cdef class PyMat4D:
     cdef Mat4D *matrix
 

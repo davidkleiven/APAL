@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.cahn_hilliard cimport CahnHilliard
+from apal.cython.cahn_hilliard cimport CahnHilliard
 from libcpp.vector cimport vector
 
 cdef class PyCahnHilliard:

@@ -1,4 +1,4 @@
-from cemc.phasefield.cython.sparse_matrix cimport SparseMatrix
+from apal.cython.sparse_matrix cimport SparseMatrix
 from libcpp.vector cimport vector
 
 cdef class PySparseMatrix:

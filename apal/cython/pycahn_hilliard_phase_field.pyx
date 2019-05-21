@@ -1,7 +1,7 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython cimport cahn_hilliard_phase_field as chpf
-from cemc.phasefield.cython.cahn_hilliard cimport CahnHilliard
+from apal.cython cimport cahn_hilliard_phase_field as chpf
+from apal.cython.cahn_hilliard cimport CahnHilliard
 from libcpp.string cimport string
 
 # Hack to support integer template arguments with cython

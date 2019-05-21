@@ -1,4 +1,4 @@
-from cemc.phasefield.cython.conjugate_gradient cimport ConjugateGradient
+from apal.cython.conjugate_gradient cimport ConjugateGradient
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 

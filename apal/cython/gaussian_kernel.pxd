@@ -1,6 +1,6 @@
 # distutils: language=c++
 
-from cemc.phasefield.cython.regression_kernel cimport RegressionKernel
+from apal.cython.regression_kernel cimport RegressionKernel
 
 cdef extern from "regression_kernels.hpp":
     cdef cppclass GaussianKernel(RegressionKernel):

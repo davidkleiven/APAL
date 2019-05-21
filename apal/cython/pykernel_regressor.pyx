@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.kernel_regressor cimport KernelRegressor
+from apal.cython.kernel_regressor cimport KernelRegressor
 from cython.operator cimport dereference
 from libcpp.vector cimport vector
 import numpy as np

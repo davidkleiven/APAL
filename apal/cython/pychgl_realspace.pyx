@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.CHGLRealSpace cimport CHGLRealSpace
+from apal.cython.CHGLRealSpace cimport CHGLRealSpace
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 

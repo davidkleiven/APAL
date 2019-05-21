@@ -20,5 +20,7 @@ const int FFTW_ESTIMATE = 0x01;
 
 // Dummy value for an fftw ndplan
 struct fftwnd_plan{};
+struct fftw_plan{};
+void fftw_execute(fftw_plan &plan){};
 #endif
 #endif

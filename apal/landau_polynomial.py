@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize, LinearConstraint, fsolve
 from scipy.optimize import NonlinearConstraint
-from cemc.phasefield.phasefield_util import fit_kernel, heaviside
+from apal.phasefield_util import fit_kernel, heaviside
 from phasefield_cxx import PyKernelRegressor, PyGaussianKernel
 import scipy
 import time

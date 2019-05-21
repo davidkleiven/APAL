@@ -1,8 +1,8 @@
 # distutils: language=c++
 
 from libcpp.vector cimport vector
-from cemc.phasefield.cython.kernel_regressor cimport KernelRegressor
-from cemc.phasefield.cython.polynomial cimport Polynomial
+from apal.cython.kernel_regressor cimport KernelRegressor
+from apal.cython.polynomial cimport Polynomial
 
 cdef extern from "two_phase_landau.hpp":
   cdef cppclass TwoPhaseLandau:

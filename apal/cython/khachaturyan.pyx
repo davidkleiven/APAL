@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.khachaturyan cimport Khachaturyan
+from apal.cython.khachaturyan cimport Khachaturyan
 cimport numpy as np
 import numpy as np
 

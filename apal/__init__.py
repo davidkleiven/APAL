@@ -1,14 +1,14 @@
 # Empty file
-from cemc.phasefield.tools import cahn_hilliard_surface_parameter
-from cemc.phasefield.involution import Involution, LinearInvolution, FractionalInvolution
-from cemc.phasefield.cahn_hilliard import CahnHilliard
-from cemc.phasefield.hyper_tangent_bvp_solver import HyperbolicTangentBVPSolver
-from cemc.phasefield.coupled_euler import CoupledEuler
-from cemc.phasefield.gradient_coefficient import GradientCoefficient
-from cemc.phasefield.gradient_coeff_rhs_builder import GradientCoefficientRhsBuilder
-from cemc.phasefield.gradient_coeff_no_explicit_profile import GradientCoeffNoExplicitProfile
-from cemc.phasefield.grad_coeff_energy_eval import GradCoeffEvaluator, SlavedTwoPhaseLandauEvaluator
-from cemc.phasefield.landau_poly_fit_constraints import PeakPosition
-from cemc.phasefield.landau_poly_fit_constraints import StraightLineSaddle
-from cemc.phasefield.landau_poly_fit_constraints import InteriorMinima
-from cemc.phasefield.landau_polynomial import TwoPhaseLandauPolynomial
+from apal.tools import cahn_hilliard_surface_parameter
+from apal.involution import Involution, LinearInvolution, FractionalInvolution
+from apal.cahn_hilliard import CahnHilliard
+from apal.hyper_tangent_bvp_solver import HyperbolicTangentBVPSolver
+from apal.coupled_euler import CoupledEuler
+from apal.gradient_coefficient import GradientCoefficient
+from apal.gradient_coeff_rhs_builder import GradientCoefficientRhsBuilder
+from apal.gradient_coeff_no_explicit_profile import GradientCoeffNoExplicitProfile
+from apal.grad_coeff_energy_eval import GradCoeffEvaluator, SlavedTwoPhaseLandauEvaluator
+from apal.landau_poly_fit_constraints import PeakPosition
+from apal.landau_poly_fit_constraints import StraightLineSaddle
+from apal.landau_poly_fit_constraints import InteriorMinima
+from apal.landau_polynomial import TwoPhaseLandauPolynomial

@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.two_phase_landau cimport TwoPhaseLandau
+from apal.cython.two_phase_landau cimport TwoPhaseLandau
 from libcpp.vector cimport vector
 from cython.operator cimport dereference
 

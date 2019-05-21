@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.polynomial_term cimport PolynomialTerm
+from apal.cython.polynomial_term cimport PolynomialTerm
 from libcpp.vector cimport vector
 
 

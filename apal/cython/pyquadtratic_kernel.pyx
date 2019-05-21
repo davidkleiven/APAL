@@ -1,8 +1,8 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.quadratic_kernel cimport QuadraticKernel
-from cemc.phasefield.cython.regression_kernel cimport RegressionKernel
-from cemc.phasefield.cython.gaussian_kernel cimport GaussianKernel
+from apal.cython.quadratic_kernel cimport QuadraticKernel
+from apal.cython.regression_kernel cimport RegressionKernel
+from apal.cython.gaussian_kernel cimport GaussianKernel
 
 cdef class PyRegressionKernel:
     cdef RegressionKernel *thisptr

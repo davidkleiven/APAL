@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from cemc.phasefield.cython.polynomial cimport Polynomial
+from apal.cython.polynomial cimport Polynomial
 from cython.operator cimport dereference
 
 cdef class PyPolynomial:
