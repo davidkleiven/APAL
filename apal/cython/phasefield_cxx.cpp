@@ -1220,7 +1220,7 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 
 /* "cemc/phasefield/cython/pyquadtratic_kernel.pyx":7
- * from cemc.phasefield.cython.gaussian_kernel cimport GaussianKernel
+ * from apal.cython.gaussian_kernel cimport GaussianKernel
  * 
  * cdef class PyRegressionKernel:             # <<<<<<<<<<<<<<
  *     cdef RegressionKernel *thisptr
@@ -1271,7 +1271,7 @@ struct __pyx_obj_14phasefield_cxx_PyKernelRegressor {
 
 /* "cemc/phasefield/cython/pymat4D.pyx":4
  * 
- * from cemc.phasefield.cython.mat4D cimport Mat4D
+ * from apal.cython.mat4D cimport Mat4D
  * cdef class PyMat4D:             # <<<<<<<<<<<<<<
  *     cdef Mat4D *matrix
  * 
@@ -1422,7 +1422,7 @@ struct __pyx_obj_14phasefield_cxx_PyConjugateGradient {
 
 
 /* "cemc/phasefield/cython/pyadaptive_timestep_logger.pyx":5
- * from cemc.phasefield.cython.adaptive_timestep_logger cimport AdaptiveTimeStepLogger, LogFileEntry
+ * from apal.cython.adaptive_timestep_logger cimport AdaptiveTimeStepLogger, LogFileEntry
  * 
  * cdef class PyAdaptiveTimeStepLogger:             # <<<<<<<<<<<<<<
  *     cdef AdaptiveTimeStepLogger *thisptr
@@ -2065,45 +2065,45 @@ static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, char *, char *, int *); /*proto*/
 static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
-/* Module declarations from 'cemc.phasefield.cython.regression_kernel' */
+/* Module declarations from 'apal.cython.regression_kernel' */
 
-/* Module declarations from 'cemc.phasefield.cython.quadratic_kernel' */
+/* Module declarations from 'apal.cython.quadratic_kernel' */
 
-/* Module declarations from 'cemc.phasefield.cython.gaussian_kernel' */
+/* Module declarations from 'apal.cython.gaussian_kernel' */
 
 /* Module declarations from 'libcpp.vector' */
 
-/* Module declarations from 'cemc.phasefield.cython.kernel_regressor' */
+/* Module declarations from 'apal.cython.kernel_regressor' */
 
-/* Module declarations from 'cemc.phasefield.cython.mat4D' */
+/* Module declarations from 'apal.cython.mat4D' */
 
-/* Module declarations from 'cemc.phasefield.cython.khachaturyan' */
+/* Module declarations from 'apal.cython.khachaturyan' */
 
-/* Module declarations from 'cemc.phasefield.cython.polynomial' */
+/* Module declarations from 'apal.cython.polynomial' */
 
-/* Module declarations from 'cemc.phasefield.cython.two_phase_landau' */
+/* Module declarations from 'apal.cython.two_phase_landau' */
 
-/* Module declarations from 'cemc.phasefield.cython.cahn_hilliard' */
+/* Module declarations from 'apal.cython.cahn_hilliard' */
 
-/* Module declarations from 'cemc.phasefield.cython' */
+/* Module declarations from 'apal.cython' */
 
 /* Module declarations from 'libcpp.string' */
 
-/* Module declarations from 'cemc.phasefield.cython.cahn_hilliard_phase_field' */
+/* Module declarations from 'apal.cython.cahn_hilliard_phase_field' */
 
-/* Module declarations from 'cemc.phasefield.cython.polynomial_term' */
+/* Module declarations from 'apal.cython.polynomial_term' */
 
-/* Module declarations from 'cemc.phasefield.cython.chgl' */
+/* Module declarations from 'apal.cython.chgl' */
 
-/* Module declarations from 'cemc.phasefield.cython.CHGLRealSpace' */
+/* Module declarations from 'apal.cython.CHGLRealSpace' */
 
 /* Module declarations from 'libcpp' */
 
-/* Module declarations from 'cemc.phasefield.cython.sparse_matrix' */
+/* Module declarations from 'apal.cython.sparse_matrix' */
 
-/* Module declarations from 'cemc.phasefield.cython.conjugate_gradient' */
+/* Module declarations from 'apal.cython.conjugate_gradient' */
 
-/* Module declarations from 'cemc.phasefield.cython.adaptive_timestep_logger' */
+/* Module declarations from 'apal.cython.adaptive_timestep_logger' */
 
 /* Module declarations from 'phasefield_cxx' */
 static PyTypeObject *__pyx_ptype_14phasefield_cxx_PyRegressionKernel = 0;
@@ -23671,7 +23671,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "cemc/phasefield/cython/khachaturyan.pyx":5
- * from cemc.phasefield.cython.khachaturyan cimport Khachaturyan
+ * from apal.cython.khachaturyan cimport Khachaturyan
  * cimport numpy as np
  * import numpy as np             # <<<<<<<<<<<<<<
  * 

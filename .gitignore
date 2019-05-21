@@ -107,3 +107,5 @@ venv.bak/
 *.bin
 apal_cxx.cpp
 *.gch
+*.grid
+*.ipch

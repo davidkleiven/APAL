@@ -24,7 +24,7 @@ def get_polyterms(fname):
 
     :param str fname: JSON file with the parameters
     """
-    from phasefield_cxx import PyPolynomialTerm
+    from apal_cxx import PyPolynomialTerm
 
     with open(fname, 'r') as infile:
         data = json.load(infile)

@@ -3,7 +3,7 @@ import numpy as np
 
 def fit_kernel(x=[], y=[], num_kernels=1, kernel=None, lamb=None,
                extrapolate="none", extrap_range=0.1):
-    from phasefield_cxx import PyKernelRegressor
+    from apal_cxx import PyKernelRegressor
 
     allowed_extrapolations = ["none", "linear"]
     if extrapolate not in allowed_extrapolations:
