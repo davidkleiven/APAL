@@ -35,3 +35,35 @@ def get_polyterms(fname):
         poly_terms.append(PyPolynomialTerm(entry["powers"]))
         coefficients.append(entry["coeff"])
     return coefficients, poly_terms
+
+
+def surface_formation(conc, free_energy):
+    """Extract the surface energy from a binary curve. Assume that there 
+       is one local minima in the first half of the free_energy array and one 
+       in the second half.
+
+       :param conc np.ndarray: 1D array with concentrations
+       :param free_energy np.ndarray: 1D array with free_energies
+    """
+
+    N = len(free_energy)
+    first_half = free_energy[:int(N/2)]
+    last_half = free_energy[int(N/2):]
+
+    min_first = np.argmin(first_half)
+    min_second = np.argmin(last_half)
+
+    y1 = free_energy[min_first]
+    y2 = free_energy[int(N/2) + min_second]
+    x1 = conc[min_first]
+    x2 = conc[int(N/2) + min_second]
+
+    tangent_slope = (y2 - y1)/(x2 - x1)
+    
+    tangent = tangent_slope*(conc - x1) + y1
+    surf_form = free_energy - tangent
+
+    i1 = min_first
+    i2 = int(N/2) + min_second
+    return conc[i1:i2], surf_form[i1:i2]
+
