@@ -67,7 +67,7 @@ phasefield_sources = ["mat4D.cpp", "khacaturyan.cpp",
 phasefield_sources = [src_phase + "/" + x for x in phasefield_sources]
 phasefield_sources.append("apal/cython/apal_cxx.pyx")
 
-extra_comp_args = []
+extra_comp_args = ["-std=c++11", "-fopenmp"]
 define_macros = []
 optional_lib_phasefield = []
 
