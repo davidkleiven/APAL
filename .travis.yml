@@ -5,6 +5,10 @@ python:
   - "2.7"
   - "3.5"
 
+env:
+  global:
+    - MMSP_HOME=$TRAVIS_BUILD_DIR/mmsp
+
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install g++
@@ -12,7 +16,8 @@ before_install:
   - ln -s /usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-6.0.so libvtkCommonDataModel.so
   - ln -s /usr/lib/x86_64-linux-gnu/libvtkCommonCore-6.0.so libvtkCommonCore.so
   - ln -s /usr/lib/x86_64-linux-gnu/libvtkIOXML-6.0.so libvtkIOXML.so
-  - git clone https://github.com/mesoscale/mmsp.git
+  - mkdir $MMSP_HOME
+  - git clone https://github.com/mesoscale/mmsp.git $MMSP_HOME
   - pip install cython
 
 install:
