@@ -56,7 +56,13 @@ class TestCHGL(unittest.TestCase):
         poly = PyPolynomial(3)
         landau.set_polynomial(poly)
         chgl.set_free_energy(landau)
-        chgl.run(5, 1000)
+
+        try:
+            chgl.run(5, 1000)
+        except RuntimeError as exc:
+            # The only way run should raise a runtime error at this stage is
+            # if FFTW is not installed
+            self.assertTrue("CHGL requires FFTW!" in str(exc))
 
 
     def test_npy_array(self):
