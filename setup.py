@@ -44,9 +44,16 @@ def check_fftw():
         print(str(exc))
         ret_val = False
     
-    os.remove(fname)
-    os.remove(binfname)
-    os.remove(fname.split(".")[0] + ".o")
+    if os.path.exists(fname):
+        os.remove(fname)
+    
+    if os.path.exists(binfname):
+        os.remove(binfname)
+    
+    obj_fname = fname.split(".")[0] + ".o"
+
+    if os.path.exists(obj_fname):
+        os.remove(obj_fname)
     return ret_val
 
 
