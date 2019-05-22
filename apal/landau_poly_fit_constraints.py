@@ -1,6 +1,12 @@
 import numpy as np
 from scipy.signal import argrelextrema
-from itertools import product, filterfalse
+from itertools import product
+
+try:
+    from itertools import filterfalse
+except ImportError:
+    # Python2
+    from itertools import ifilterfalse as filterfalse
 
 
 class LandauPolynomialFitConstraint(object):
