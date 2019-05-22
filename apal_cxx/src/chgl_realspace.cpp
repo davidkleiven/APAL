@@ -375,12 +375,12 @@ void CHGLRealSpace<dim>::log_tritem(const map<string, double> &item) const{
 
 template<int dim>
 void CHGLRealSpace<dim>::update_min_max_strain_deriv(){
-    min_strain_deriv = numeric_limits<double>::max();
-    max_strain_deriv = numeric_limits<double>::min();;
-    unsigned int num_nan = 0;
 
+    double min_strain_deriv_local =  numeric_limits<double>::max();
+    double max_strain_deriv_local = numeric_limits<double>::min();
+    int num_nan = 0;
     #ifndef NO_PHASEFIELD_PARALLEL
-    #pragma omp parallel for reduction(min: min_strain_deriv) reduction(max: max_strain_deriv) reduction(+: num_nan)
+    #pragma omp parallel for reduction(min: min_strain_deriv_local) reduction(max: max_strain_deriv_local) reduction(+: num_nan)
     #endif
     for (unsigned int i=0;i<MMSP::nodes(*strain_deriv);i++){
         for (unsigned int field=1;field<dim+1;field++){
@@ -391,14 +391,17 @@ void CHGLRealSpace<dim>::update_min_max_strain_deriv(){
                 num_nan += 1;
             }
 
-            if (value < min_strain_deriv){
-                min_strain_deriv = value;
+            if (value < min_strain_deriv_local){
+                min_strain_deriv_local = value;
             }
-            else if (value > max_strain_deriv){
-                max_strain_deriv = value;
+            else if (value > max_strain_deriv_local){
+                max_strain_deriv_local = value;
             }
         }
     }
+
+    min_strain_deriv = min_strain_deriv_local;
+    max_strain_deriv = max_strain_deriv_local;
 
     if (num_nan > 0){
         stringstream ss;
