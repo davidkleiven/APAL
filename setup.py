@@ -40,6 +40,9 @@ def check_fftw():
     except LinkError:
         print('FFTW link error')
         ret_val = False
+    except FileNotFoundError as exc:
+        print(str(exc))
+        ret_val = False
     
     os.remove(fname)
     os.remove(binfname)
