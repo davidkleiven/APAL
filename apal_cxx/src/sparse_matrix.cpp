@@ -96,8 +96,8 @@ bool SparseMatrix::is_symmetric() const{
 }
 
 void SparseMatrix::count_entries_on_each_row(std::vector<unsigned int> &num_entries) const{
-    for (auto row : row){
-        num_entries[row] += 1;
+    for (auto r : row){
+        num_entries[r] += 1;
     }
 }
 
