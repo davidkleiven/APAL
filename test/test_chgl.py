@@ -101,6 +101,5 @@ class TestCHGL(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    from cemc import TimeLoggingTestRunner
-    unittest.main(testRunner=TimeLoggingTestRunner)
+    unittest.main()
     
