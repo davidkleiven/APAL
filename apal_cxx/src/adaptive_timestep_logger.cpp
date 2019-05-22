@@ -1,5 +1,6 @@
 #include "adaptive_timestep_logger.hpp"
 #include <fstream>
+#include <stdexcept>
 
 
 using namespace std;
