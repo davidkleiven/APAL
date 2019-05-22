@@ -1,6 +1,7 @@
 #include "chgl_realspace.hpp"
 #include "conjugate_gradient.hpp"
 #include <limits>
+#include <cmath>
 
 template<int dim>
 CHGLRealSpace<dim>::CHGLRealSpace(int L, const std::string &prefix, unsigned int num_gl_fields, \
@@ -387,7 +388,7 @@ void CHGLRealSpace<dim>::update_min_max_strain_deriv(){
 
             double value = real((*strain_deriv)(i)[field]);
 
-            if (isnan(value)){
+            if (std::isnan(value)){
                 num_nan += 1;
             }
 
