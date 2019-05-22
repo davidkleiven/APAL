@@ -18,9 +18,9 @@ before_install:
   - ln -s /usr/lib/x86_64-linux-gnu/libvtkIOXML-6.0.so libvtkIOXML.so
   - mkdir $MMSP_HOME
   - git clone https://github.com/mesoscale/mmsp.git $MMSP_HOME
-  - pip install cython
 
 install:
+  - pip install -r requirements.txt
   - pip install .
 
 script:
