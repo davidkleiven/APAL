@@ -607,15 +607,40 @@ class TwoPhaseLandauPolynomial(object):
 
     def gradient_coefficient(self, alpha, gamma, conc, surf_form):
         from scipy.optimize import newton
-        n_deriv = self.equil_shape_fixed_conc_and_shape_deriv(conc)
+        deriv = np.array(self.equil_shape_order_derivative(conc))
+
+        # The derivative is infinite at the transition. Remove unrealistic high contributions
+        deriv[deriv>100*np.median(deriv)] = 0.0
 
         def eq(x):
-            integrand = np.sqrt(np.sqrt(surf_form)*(alpha + x*n_deriv**2))
+            integrand = np.sqrt(np.sqrt(surf_form)*(alpha + x*deriv**2))
             interface_energy = 2*np.trapz(integrand, x=conc)
             return interface_energy - gamma
 
-        root, _, _, _ = fsolve(eq, alpha)
+        root = fsolve(eq, alpha)
         return root
+
+    def conc_grad_param(self, gamma, x, surf_form):
+        """Obtain gradient coefficients via a linearised approximation to the governing equations.
+
+        The following system of equations is solved
+
+        gamma1 = 2*integral sqrt(surf_form)*sqrt(b1 + b2*(d_eta/dc)**2)
+        gamma2 = 2*integral sqrt(surf_form)*sqrt(b1 + f*b2*(d_eta/dc)**2)
+        f = gamma2/gamma1
+
+        by expanding the last square root.
+
+        :param float gamma1: First surface tension
+        :param float gamma2: Second surface tension
+        :param x np.ndarray: 1D array with concentrations
+        :param surf_form np.ndarray: 1D array with surface formation energy
+        """
+
+        sqrt_surf = np.sqrt(surf_form)
+        sqrt_alpha = 0.5*gamma/np.trapz(sqrt_surf, x=x)
+        alpha = sqrt_alpha**2
+        return alpha
 
 
 class MinimizationProgressCallback(object):
