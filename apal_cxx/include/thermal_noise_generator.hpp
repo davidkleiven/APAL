@@ -5,7 +5,7 @@
 class ThermalNoiseGenerator{
 public:
     ThermalNoiseGenerator(double dt): dt(dt){};
-    virtual ~ThermalNoiseGenerator();
+    virtual ~ThermalNoiseGenerator(){};
 
     virtual void create(std::vector<double> &noise) const = 0;
 
