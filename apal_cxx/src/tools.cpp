@@ -150,3 +150,54 @@ MMSP::vector<int>& wrap(MMSP::vector<int> &pos, unsigned int L){
     }
     return pos;
 }
+
+void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, double dt, SparseMatrix &mat){
+  mat.clear();
+
+  // Create a grid containing the indices
+  MMSP::grid<3, int> indexGrid(1, 0, L, 0, L, 0, L);
+  for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
+      indexGrid(i) = i;
+  }
+
+  double factor = 2.0*alpha*M*dt;
+
+  for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
+
+    // Insert diagonal
+    mat.insert(i, i, 1.0 + 42*factor);
+
+    // Insert elements that is one off
+    // Retrive node at position +- 1
+    for (unsigned int dir=0;dir<3;dir++)
+    for (int j=-1;j<2;j+=2){
+        MMSP::vector<int> pos = indexGrid.position(i);
+        pos[dir] += j;
+        unsigned int col = indexGrid(wrap(pos, L));
+        mat.insert(i, col, -12*factor);
+    }
+
+    // Insert element 2 off the diagonal
+    // Calculate factor at position +- 2
+    for (unsigned int dir=0;dir<3;dir++)
+    for (int j=-2;j<5;j+=4){
+      MMSP::vector<int> pos = indexGrid.position(i);
+      pos[dir] += j;
+      unsigned int col = indexGrid(wrap(pos, L));
+      mat.insert(i, col, factor);
+    }    
+
+    // Calculate the cross terms
+    for (int ix=-1;ix<2;ix+=2)
+    for (int iy=-1;iy<2;iy+=2)
+    for (int iz=-1;iz<2;iz+=2)
+    {
+      MMSP::vector<int> pos = indexGrid.position(i);
+      pos[0] += ix;
+      pos[1] += iy;
+      pos[2] += iz;
+      unsigned int col = indexGrid(wrap(pos, L));
+      mat.insert(i, col, 2*factor);
+    }
+  }
+}

@@ -109,5 +109,11 @@ template<int dim>
 double min_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsigned int field);
 
 MMSP::vector<int>& wrap(MMSP::vector<int> &pos, unsigned int L);
+
+/** Construct the cahn hilliard system matrix in 3D. It is assumed that the term 
+ *  corresponding to the nabla^4 is moved to the left side of the equation.
+*/
+void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, SparseMatrix &mat);
+
 #include "tools.tpp"
 #endif
