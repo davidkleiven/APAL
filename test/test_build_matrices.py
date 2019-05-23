@@ -1,5 +1,6 @@
 import unittest
 from apal_cxx import pytest_biharmonic_matrix
+from apal_cxx import pytest_laplacian_matrix3D
 from scipy.ndimage.filters import laplace
 from scipy.linalg import toeplitz
 import numpy as np
@@ -37,50 +38,26 @@ class TestBuildMatrices(unittest.TestCase):
         flat_template.sort()
         flat_cpp.sort()
         self.assertTrue(np.allclose(flat_cpp, flat_template))
-        
 
-        
-       
+    def test_laplacian_matrix3D(self):
+        """
+        Check that the concstructed 3D laplacian contains exactly the same 
+        elements as the one constructed form a Toeplitz matrix
+        """
+        mat = pytest_laplacian_matrix3D().astype(np.int32)
+        mat -= np.identity(mat.shape[0], dtype=np.int32)
+        mat = -mat
 
-        # # Create an 3D image
-        # image = np.zeros((16, 16, 16))
+        lapl3D = self.get_3D_laplacian_matrix(16).astype(np.int32)
 
-        # L = mat.shape[0]
-        # size = int(L/4)
+        flat_lap3D = lapl3D.ravel()
+        flat_lap3D.sort()
 
-        # # Insert sime features
-        # image[:size,:size:size] = 1.0
-        # image[2*size:, :, :] = 1.0
+        flat_mat = mat.ravel()
+        flat_mat.sort()
 
-        # # Flattened image
-        # flattened = image.copy()
-        # flattened = flattened.ravel()
+        self.assertTrue(np.allclose(flat_lap3D, flat_mat))
 
-        # # Biharmonic
-        # biharm_filter = 0.5*mat.dot(flattened)
-        # biharm_filter = np.reshape(biharm_filter, image.shape)
-
-        # # First make sure that the filtered image is different
-        # # from the original
-        # self.assertFalse(np.allclose(image, biharm_filter))
-
-        # # Apply laplacian filter
-        # output = image.copy()
-        # laplace(image, output, mode='wrap')
-        # image = output.copy()
-
-        # # Again make sure that it still is different
-        # self.assertFalse(np.allclose(image, biharm_filter))
-
-        # # Apply laplacian filter again
-        # laplace(image, output, mode='wrap')
-        # image = output.copy()
-
-        # # Now it should be the same has the biharmonic filtered
-        # #print(image)
-        # print(np.max(np.abs(biharm_filter)))
-        
-        # self.assertTrue(np.allclose(image, biharm_filter))
 
 
 if __name__ == "__main__":

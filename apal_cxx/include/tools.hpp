@@ -118,5 +118,14 @@ MMSP::vector<int>& wrap(MMSP::vector<int> &pos, unsigned int L);
 */
 void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, double dt, SparseMatrix &mat);
 
+/** Construct the system matrix for partial differential equation when moving a term equal to
+ * prefactor*nabla^2 f to the right hand side
+ * 
+ * @param L Side lengt of the cube
+ * @param prefactor The prefactor in front of the laplacian operator
+ * @param mat Sparse matrix to fill
+ * */
+void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, SparseMatrix &mat);
+
 #include "tools.tpp"
 #endif
