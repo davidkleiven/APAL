@@ -113,7 +113,7 @@ MMSP::vector<int>& wrap(MMSP::vector<int> &pos, unsigned int L);
 /** Construct the cahn hilliard system matrix in 3D. It is assumed that the term 
  *  corresponding to the nabla^4 is moved to the left side of the equation.
 */
-void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, SparseMatrix &mat);
+void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, double dt, SparseMatrix &mat);
 
 #include "tools.tpp"
 #endif

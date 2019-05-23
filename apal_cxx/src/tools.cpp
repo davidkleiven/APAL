@@ -2,6 +2,7 @@
 #include "origin_singularity_integration.hpp"
 #include <cmath>
 #include <omp.h>
+#include <stdexcept>
 
 const double PI = acos(-1.0);
 
@@ -199,5 +200,9 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
       unsigned int col = indexGrid(wrap(pos, L));
       mat.insert(i, col, 2*factor);
     }
+  }
+
+  if (!mat.is_symmetric()){
+      throw runtime_error("System matrix 3D has to be symmetric!");
   }
 }
