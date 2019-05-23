@@ -58,14 +58,18 @@ def check_fftw():
 
 
 src_phase = "apal_cxx/src"
+src_test = "apal_cxx/tests"
 phasefield_sources = ["mat4D.cpp", "khacaturyan.cpp",
                       "linalg.cpp", "cahn_hilliard.cpp", "polynomial_term.cpp",
                       "polynomial.cpp", "regression_kernels.cpp", "kernel_regressor.cpp",
                       "sparse_matrix.cpp", "gaussian_white_noise.cpp",
                       "adaptive_timestep_logger.cpp", "additional_tools.cpp",
                       "dense_matrix.cpp"]
+apal_cxx_tests = []
 
 phasefield_sources = [src_phase + "/" + x for x in phasefield_sources]
+apal_cxx_tests = [src_test + "/" + x for x in apal_cxx_tests]
+phasefield_sources += apal_cxx_tests
 phasefield_sources.append("apal/cython/apal_cxx.pyx")
 
 extra_comp_args = ["-std=c++11", "-fopenmp"]

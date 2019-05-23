@@ -189,16 +189,21 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
     }    
 
     // Calculate the cross terms
-    for (int ix=-1;ix<2;ix+=2)
-    for (int iy=-1;iy<2;iy+=2)
-    for (int iz=-1;iz<2;iz+=2)
+    for (int ix=-1;ix<2;ix++)
+    for (int iy=-1;iy<2;iy++)
+    for (int iz=-1;iz<2;iz++)
     {
-      MMSP::vector<int> pos = indexGrid.position(i);
-      pos[0] += ix;
-      pos[1] += iy;
-      pos[2] += iz;
-      unsigned int col = indexGrid(wrap(pos, L));
-      mat.insert(i, col, 2*factor);
+        // One of ix, iy, iz has to be zero
+        if (abs(ix) + abs(iy) + abs(iz) != 2){
+            continue;
+        }
+
+        MMSP::vector<int> pos = indexGrid.position(i);
+        pos[0] += ix;
+        pos[1] += iy;
+        pos[2] += iz;
+        unsigned int col = indexGrid(wrap(pos, L));
+        mat.insert(i, col, 2*factor);
     }
   }
 

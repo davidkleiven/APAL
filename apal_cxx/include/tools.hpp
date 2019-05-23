@@ -28,6 +28,9 @@ double& imag(fftw_complex number){
     return number[1];
 }
 
+// Forward-declaration
+class SparseMatrix;
+
 template<int dim, typename T>
 T partial_double_derivative(const MMSP::grid<dim, T> &GRID, const MMSP::vector<int> &x, unsigned int dir){
     MMSP::vector<int> s = x;
