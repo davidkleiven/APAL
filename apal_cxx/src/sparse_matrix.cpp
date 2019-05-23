@@ -1,4 +1,5 @@
 #include "sparse_matrix.hpp"
+#include "dense_matrix.hpp"
 #include <fstream>
 #include <map>
 #include <utility>
@@ -150,4 +151,10 @@ void SparseMatrix::to_csr(){
         }
     }
     converted_to_csr = true;
+}
+
+void SparseMatrix::to_dense(DenseMatrix &mat) const{
+    for (unsigned int i=0;i<values.size();i++){
+        mat(row[i], col[i]) = values[i];
+    }
 }
