@@ -2,6 +2,9 @@
 #include "conjugate_gradient.hpp"
 #include <limits>
 #include <cmath>
+#include <stdexcept>
+
+using namespace std;
 
 template<int dim>
 CHGLRealSpace<dim>::CHGLRealSpace(int L, const std::string &prefix, unsigned int num_gl_fields, \
@@ -95,6 +98,31 @@ void CHGLRealSpace<dim>::build2D(){
         }
         counter++;
         mat.to_csr();
+    }
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::build3D(){
+    if (dim != 3){
+        throw runtime_error("build3D can only be called if dim=3!");
+    }
+
+    // Clear all matrices
+    for (auto& mat : matrices){
+        mat.clear();
+    }
+
+    did_build_matrices = true;
+    cahn_hilliard_system_matrix3D(this->L, this->M, this->alpha, this->dt, matrices[0]);
+
+    // Three layering directions
+    double prefactor[3];
+    for (unsigned int gl_field=0;gl_field<3;gl_field++){
+        for (unsigned int dir=0;dir<3;dir++){
+            prefactor[dir] = 2*this->gl_damping*this->interface[gl_field][dir];
+        }
+        
+        system_matrix_implicit_laplacian3D(this->L, prefactor, matrices[gl_field+1]);
     }
 }
 
@@ -197,7 +225,8 @@ void CHGLRealSpace<dim>::update(int nsteps){
 
         if (should_lower_timestep(max_diff)){
             this->set_timestep(this->dt/2.0);// Reduce time step
-            build2D(); // Rebuild matrices
+
+            rebuild_matrices();
             //gr_cpy.swap(*this->grid_ptr);
             this->grid_ptr->copy(gr_cpy);
             did_lower_timestep = true;
@@ -215,7 +244,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
 
     if ((this->update_counter%this->increase_dt == 0) && this->adaptive_dt && !did_lower_timestep){
         this->set_timestep(this->dt*2);
-        build2D();
+        rebuild_matrices();
         cout << "Time step increased. New dt: " << this->dt << endl;
     }
 
@@ -408,6 +437,21 @@ void CHGLRealSpace<dim>::update_min_max_strain_deriv(){
         stringstream ss;
         ss << num_nan << " functional derivatives is NaN!";
         throw runtime_error(ss.str());
+    }
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::rebuild_matrices(){
+    switch (dim)
+    {
+    case 2:
+        build2D();
+        break;
+    case 3:
+        build3D();
+        break;
+    default:
+        throw invalid_argument("Can only build system matrices for 2 and 3 dimensions!");
     }
 }
 // Explicit instantiations

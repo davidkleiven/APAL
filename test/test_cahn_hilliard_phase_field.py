@@ -49,6 +49,7 @@ class TestCahnHilliardPhaseField(unittest.TestCase):
             os.remove("cahnhill40.vti")
             os.remove("cahnhill60.vti")
             os.remove("cahnhill80.vti")
+            os.remove("cahnhill_adaptive_time.csv")
         except OSError:
             pass
 

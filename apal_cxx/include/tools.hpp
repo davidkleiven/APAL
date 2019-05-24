@@ -28,6 +28,9 @@ double& imag(fftw_complex number){
     return number[1];
 }
 
+// Forward-declaration
+class SparseMatrix;
+
 template<int dim, typename T>
 T partial_double_derivative(const MMSP::grid<dim, T> &GRID, const MMSP::vector<int> &x, unsigned int dir){
     MMSP::vector<int> s = x;
@@ -109,5 +112,21 @@ template<int dim>
 double min_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsigned int field);
 
 MMSP::vector<int>& wrap(MMSP::vector<int> &pos, unsigned int L);
+
+/** Construct the cahn hilliard system matrix in 3D. It is assumed that the term 
+ *  corresponding to the nabla^4 is moved to the left side of the equation.
+*/
+void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, double dt, SparseMatrix &mat);
+
+/** Construct the system matrix for partial differential equation when moving a term equal to
+ * prefactor*nabla^2 f to the right hand side
+ * 
+ * @param L Side lengt of the cube
+ * @param prefactor The prefactor in front of the laplacian operator
+ * @param mat Sparse matrix to fill
+ * */
+void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, SparseMatrix &mat);
+void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor[3], SparseMatrix &mat);
+
 #include "tools.tpp"
 #endif

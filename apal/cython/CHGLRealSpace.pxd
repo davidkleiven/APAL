@@ -43,6 +43,8 @@ cdef extern from "chgl.hpp":
 
         void build2D() except+
 
+        void build3D() except+
+
         void set_cook_noise(double amplitude)
 
         void save_noise_realization(const string &fname, unsigned int field)
