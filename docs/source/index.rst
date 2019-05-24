@@ -10,6 +10,8 @@ Welcome to APAL's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   simple_cahn_hilliard
+
 
 
 Indices and tables
