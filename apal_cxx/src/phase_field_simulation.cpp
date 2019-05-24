@@ -164,7 +164,7 @@ void PhaseFieldSimulation<dim>::init_field_from_npy_arr(unsigned int field, PyOb
             x[0] = i;
             x[1] = j;
             x[2] = k;
-            (*grid_ptr)(x) = *val;
+            (*grid_ptr)(x)[field] = *val;
         }
     }
     else{
