@@ -2,19 +2,12 @@ import unittest
 import numpy as np
 from itertools import product
 
-try:
-    from apal import Khachaturyan
-    from apal_cxx import PyKhachaturyan
-    from apal_cxx import pytest_functional_derivative
-    from apal_cxx import pytest_contract_tensors
-    from apal_cxx import pytest_B_tensor_element
-    from apal.tools import to_full_rank4
-    available = True
-    reason = ""
-except ImportError as exc:
-    available = False
-    reason = str(exc)
-    print(reason)
+from apal import Khachaturyan
+from apal_cxx import PyKhachaturyan
+from apal_cxx import pytest_functional_derivative
+from apal_cxx import pytest_contract_tensors
+from apal_cxx import pytest_B_tensor_element
+from apal.tools import to_full_rank4
 
 
 class TestKhacaturyan(unittest.TestCase):
@@ -62,9 +55,6 @@ class TestKhacaturyan(unittest.TestCase):
         return shape_func
 
     def test_isotropic(self):
-        if not available:
-            self.skipTest(reason)
-        
         misfit = np.eye(3)*0.05
         strain = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
                               misfit_strain=misfit)
@@ -83,8 +73,6 @@ class TestKhacaturyan(unittest.TestCase):
         return 2*(1+self.poisson)*self.G*misfit**2/(1-self.poisson)
 
     def test_green_function_cpp(self):
-        if not available:
-            self.skipTest(available)
         misfit = np.eye(3)*0.05
         elastic = to_full_rank4(self.get_isotropic_tensor())
         pykhach = PyKhachaturyan(3, elastic, misfit)
@@ -94,8 +82,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertTrue(np.allclose(gf, self.isotropic_green_function(k)))
 
     def test_frequency(self):
-        if not available:
-            self.skipTest(reason)
         misfit = np.eye(3)*0.05
         ft = np.zeros((8, 8, 8))
         elastic = to_full_rank4(self.get_isotropic_tensor())
@@ -107,8 +93,6 @@ class TestKhacaturyan(unittest.TestCase):
             self.assertAlmostEqual(freq[i], pykhach.wave_vector(indx, ft.shape[0])[0])
 
     def test_sphere(self):
-        if not available:
-            self.skipTest(reason)
         eps = 0.05
         misfit = np.eye(3)*eps
         strain = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
@@ -119,8 +103,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(E, E_eshelby, places=3)
 
     def test_sphere_pure_python(self):
-        if not available:
-            self.skipTest(reason)
         eps = 0.05
         misfit = np.eye(3)*eps
         strain = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
@@ -131,9 +113,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(E, E_eshelby, places=3)
 
     def test_plate_voxels(self):
-        if not available:
-            self.skipTest(reason)
-        
         eps = 0.05
         misfit = np.eye(3)*eps
         strain = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
@@ -144,9 +123,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(E, E_eshelby, places=3)
 
     def test_needle_voxels(self):
-        if not available:
-            self.skipTest(reason)
-        
         eps = 0.05
         misfit = np.eye(3)*eps
         strain = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
@@ -157,9 +133,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(E, E_eshelby, places=3)
 
     def test_effective_stress(self):
-        if not available:
-            self.skipTest(reason)
-        
         eps = 0.05
         misfit = np.eye(3)*eps
         misfit[0, 1] = 0.01
@@ -176,9 +149,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertTrue(np.allclose(stress, stress_cpp))
 
     def test_contract_tensors(self):
-        if not available:
-            self.skipTest(reason)
-
         t1 = [[0.1, 0.2, 0.1],
               [0.1, 5.0, -0.2],
               [0.1, -0.2, -2.0]]
@@ -191,8 +161,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(cpp_contract, pycontract)
 
     def test_B_tensor_element(self):
-        if not available:
-            self.skipTest(reason)
         gf = [[0.5, 0.2, 0.1],
               [0.2, -0.2, 0.3],
               [0.1, 0.3, 1.0]]
@@ -212,9 +180,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertAlmostEqual(cpp_element, py_elem)
 
     def test_functional_derivative_one_field(self):
-        if not available:
-            self.skipTest(reason)
-
         elastic = to_full_rank4(self.get_isotropic_tensor())
         misfit = np.eye(3)
         misfit[0, 0] = 0.05
@@ -271,9 +236,6 @@ class TestKhacaturyan(unittest.TestCase):
         self.assertTrue(np.allclose(func_deriv, expect))
 
     def test_strain_field(self):
-        if not available:
-            self.skipTest(reason)
-        
         misfit = np.zeros((3, 3))
         misfit[0, 0] = 0.05
         khach = Khachaturyan(elastic_tensor=self.get_isotropic_tensor(),
