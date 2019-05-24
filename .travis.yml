@@ -25,3 +25,6 @@ install:
 
 script:
   - python -m unittest discover test/
+  - cd docs
+  - make html
+  - make doctest
