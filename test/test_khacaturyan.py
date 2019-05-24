@@ -188,7 +188,14 @@ class TestKhacaturyan(unittest.TestCase):
 
         init_field = np.zeros((128, 128))
         init_field[:15, :15] = 0.8
-        result = pytest_functional_derivative(elastic, misfit, init_field.ravel())
+
+        try:
+            result = pytest_functional_derivative(elastic, misfit, init_field.ravel())
+        except RuntimeError as exc:
+            # If fails, make sure that it is for the right reason
+            self.assertTrue("The package was compiled without FFTW!" in str(exc))
+            return
+
         func_deriv = result["func_deriv"]
 
         # Test 1 make sure that all entries outside 15x15 is zero
