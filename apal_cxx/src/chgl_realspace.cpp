@@ -119,7 +119,7 @@ void CHGLRealSpace<dim>::build3D(){
     double prefactor[3];
     for (unsigned int gl_field=0;gl_field<3;gl_field++){
         for (unsigned int dir=0;dir<3;dir++){
-            prefactor[dir] = 2*this->gl_damping*this->interface[gl_field][dir];
+            prefactor[dir] = 2*this->gl_damping*this->interface[gl_field][dir]*this->dt;
         }
         
         system_matrix_implicit_laplacian3D(this->L, prefactor, matrices[gl_field+1]);
