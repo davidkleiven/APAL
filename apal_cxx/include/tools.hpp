@@ -126,6 +126,7 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
  * @param mat Sparse matrix to fill
  * */
 void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, SparseMatrix &mat);
+void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor[3], SparseMatrix &mat);
 
 #include "tools.tpp"
 #endif

@@ -109,3 +109,6 @@ apal_cxx.cpp
 *.gch
 *.grid
 *.ipch
+settings.json
+.nfs*
+cahnhill_adaptive_time.csv

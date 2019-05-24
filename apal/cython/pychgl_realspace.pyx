@@ -51,7 +51,7 @@ cdef class PyCHGLRealSpace:
         elif self.dim == 2:
             self.thisptr2D.run(start, nsteps, increment)
         elif self.dim == 3:
-            self.thisptr3.run(start, nsteps, increment)
+            self.thisptr3D.run(start, nsteps, increment)
 
     def from_file(self, fname):
         if self.dim == 1:
@@ -140,6 +140,9 @@ cdef class PyCHGLRealSpace:
 
     def build2D(self):
         self.thisptr2D.build2D()
+
+    def build3D(self):
+        self.thisptr3D.build3D()
 
     def set_cook_noise(self, amplitude):
         if self.dim == 1:

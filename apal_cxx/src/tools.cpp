@@ -210,33 +210,41 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
   if (!mat.is_symmetric()){
       throw runtime_error("System matrix 3D has to be symmetric!");
   }
+  mat.to_csr();
+}
+
+void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor[3], SparseMatrix &mat){
+    mat.clear();
+
+    // Create a grid containing the indices
+    MMSP::grid<3, int> indexGrid(1, 0, L, 0, L, 0, L);
+    for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
+        indexGrid(i) = i;
+    }
+
+    double sum_prefactor = prefactor[0] + prefactor[1] + prefactor[2];
+    for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
+            // Insert diagonal
+            mat.insert(i, i, 1.0 + 2*sum_prefactor);
+
+            // Insert elements that is one off
+            // Retrive node at position +- 1
+            for (unsigned int dir=0;dir<3;dir++)
+            for (int j=-1;j<2;j+=2){
+                MMSP::vector<int> pos = indexGrid.position(i);
+                pos[dir] += j;
+                unsigned int col = indexGrid(wrap(pos, L));
+                mat.insert(i, col, -prefactor[dir]);
+            }
+    }
+
+    if (!mat.is_symmetric()){
+        throw runtime_error("Laplacian 3D matrix has to be symmetric!");
+    }
+    mat.to_csr();
 }
 
 void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, SparseMatrix &mat){
-    mat.clear();
-
-  // Create a grid containing the indices
-  MMSP::grid<3, int> indexGrid(1, 0, L, 0, L, 0, L);
-  for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
-      indexGrid(i) = i;
-  }
-
-  for (unsigned int i=0;i<MMSP::nodes(indexGrid);i++){
-        // Insert diagonal
-        mat.insert(i, i, 1.0 + 6*prefactor);
-
-        // Insert elements that is one off
-        // Retrive node at position +- 1
-        for (unsigned int dir=0;dir<3;dir++)
-        for (int j=-1;j<2;j+=2){
-            MMSP::vector<int> pos = indexGrid.position(i);
-            pos[dir] += j;
-            unsigned int col = indexGrid(wrap(pos, L));
-            mat.insert(i, col, -prefactor);
-        }
-  }
-
-  if (!mat.is_symmetric()){
-      throw runtime_error("Laplacian 3D matrix has to be symmetric!");
-  }
+    double pref_array[3] = {prefactor, prefactor, prefactor};
+    system_matrix_implicit_laplacian3D(L, pref_array, mat);
 }

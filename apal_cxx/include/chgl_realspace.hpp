@@ -16,6 +16,9 @@ public:
     /** Build the matrix for CHGL equations */
     void build2D();
 
+    /** Build the matrix for CHGL equations in 3D */
+    void build3D();
+
     /** Implement the update function */
     virtual void update(int nsteps) override;
 
@@ -47,6 +50,9 @@ private:
 
     /** Log a track item */
     void log_tritem(const std::map<std::string, double> &item) const;
+
+    /** Rebuild the system matrices */
+    void rebuild_matrices();
 };
 
 #endif
