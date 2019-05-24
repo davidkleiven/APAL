@@ -5,3 +5,4 @@ from apal.landau_poly_fit_constraints import PeakPosition
 from apal.landau_poly_fit_constraints import StraightLineSaddle
 from apal.landau_poly_fit_constraints import InteriorMinima
 from apal.landau_polynomial import TwoPhaseLandauPolynomial
+from apal.khachaturyan import Khachaturyan
