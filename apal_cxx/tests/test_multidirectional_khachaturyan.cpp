@@ -1,6 +1,9 @@
 #include "test_multidirectional_khachaturyan.hpp"
 #include "multidirectional_khachaturyan.hpp"
 #include "tools.hpp"
+#include <iostream>
+
+using namespace std;
 
 const unsigned int L = 128;
 
@@ -97,4 +100,56 @@ PyObject *test_B_tensor_element(const vector<double> &vec, PyObject *pygf, PyObj
 
     double element = B_tensor_element(mmsp_vec, gf, t1, t2);
     return PyFloat_FromDouble(element);
+}
+
+
+PyObject* test_strain_energy_sphere(PyObject *elastic, PyObject *misfit){
+
+    unsigned int size = 256;
+    Khachaturyan khach(3, elastic, misfit);
+
+    MultidirectionalKhachaturyan multi(0.8);
+    multi.add_model(khach, 0);
+
+    MMSP::grid<3, MMSP::vector<fftw_complex> > gr(1, 0, size, 0, size, 0, size);
+    MMSP::grid<3, MMSP::vector<fftw_complex> > gr_squared_norm(1, 0, size, 0, size, 0, size);
+
+    // Fill array
+    double volume = 0.0;
+    unsigned int R = 20;
+    int center = size/2;
+    for (int node=0;node<MMSP::nodes(gr);node++){
+        MMSP::vector<int> pos = gr.position(node);
+        double r_sq = 0.0;
+        for (unsigned int i=0;i<3;i++){
+            r_sq += pow(pos[i] - center, 2);
+        }
+        double r = sqrt(r_sq);
+
+        real(gr(node)[0]) = r <= R ? 0.8 : 0.0;
+        imag(gr(node)[0]) = 0.0;
+
+        real(gr_squared_norm(node)[0]) = r <= R ? 1.0 : 0.0;
+        imag(gr_squared_norm(node)[0]) = 0.0;
+        volume += r <= R ? 1 : 0;
+    }
+
+    // Calculate the functional derivative which triggers an energy calculation
+    MMSP::grid<3, MMSP::vector<fftw_complex> > grid_out(gr);
+
+    vector<int> shape_fields;
+    shape_fields.push_back(0);
+
+    double misfit_contrib = multi.misfit_contribution(gr_squared_norm, shape_fields);
+
+    multi.functional_derivative(gr, grid_out, shape_fields);
+
+    PyObject *result_dict = PyDict_New();
+    PyDict_SetItemString(result_dict, "misfit_contrib", PyFloat_FromDouble(misfit_contrib));
+    PyDict_SetItemString(result_dict, "radius", PyFloat_FromDouble(R));
+    PyDict_SetItemString(result_dict, "volume", PyFloat_FromDouble(volume));
+    double energy = multi.get_last_strain_energy();
+    PyDict_SetItemString(result_dict, "energy", PyFloat_FromDouble(energy));
+
+    return result_dict;
 }
