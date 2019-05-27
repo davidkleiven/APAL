@@ -125,6 +125,18 @@ void CahnHilliardPhaseField<dim>::build2D(){
 }
 
 template<int dim>
+void CahnHilliardPhaseField<dim>::build3D(){
+	if (dim != 3){
+		throw runtime_error("build3D should only be called if dim 3!");
+	}
+
+	system_matrix.clear();
+
+    did_build_matrix = true;
+    cahn_hilliard_system_matrix3D(this->L, this->M, this->alpha, this->dt, system_matrix);
+}
+
+template<int dim>
 void CahnHilliardPhaseField<dim>::update_implicit(int nsteps){
 	if (!did_build_matrix){
         throw runtime_error("The matrices for implicit solution has not been built!");
@@ -182,7 +194,7 @@ void CahnHilliardPhaseField<dim>::update_implicit(int nsteps){
 
 		if (max_diff > this->max_change){
 			this->dt /= 2.0;
-			build2D();
+			build_system_matrix();
 			this->grid_ptr->copy(gr_cpy);
             cout << "Refine timestep. New dt: " << this->dt << ". Max change: " << max_diff << endl;
 		}
@@ -200,7 +212,7 @@ void CahnHilliardPhaseField<dim>::update_implicit(int nsteps){
 	}
 
 	this->dt *= 2;
-	this->build2D();
+	this->build_system_matrix();
 	cout << "New time step: " << this->dt << endl;
 }
 
@@ -209,6 +221,20 @@ void CahnHilliardPhaseField<dim>::set_adaptive(double min_dt, double max_change)
 	this->min_dt = min_dt;
 	this->max_change = max_change;
 	this->scheme = "implicit";
+}
+
+template<int dim>
+void CahnHilliardPhaseField<dim>::build_system_matrix(){
+	switch (dim){
+		case 2:
+			build2D();
+			break;
+		case 3:
+			build3D();
+			break;
+		default:
+			throw runtime_error("Only 2D and 3D calculations are supported with implicit scheme!");
+	}
 }
 
 

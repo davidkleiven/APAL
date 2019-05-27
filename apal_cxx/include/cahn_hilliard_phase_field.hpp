@@ -19,6 +19,7 @@ public:
     void update_explicit(int nsteps);
     void update_implicit(int nsteps);
     void build2D();
+    void build3D();
     void set_adaptive(double min_dt, double max_change);
 private:
     const CahnHilliard *free_eng{nullptr};
@@ -28,6 +29,7 @@ private:
     bool did_build_matrix{false};
     double min_dt{0.0};
     double max_change{1.0};
+    void build_system_matrix();
     std::string scheme{"explicit"};
     SparseMatrix system_matrix;
     AdaptiveTimeStepLogger logger;
