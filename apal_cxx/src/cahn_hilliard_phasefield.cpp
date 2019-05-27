@@ -139,7 +139,7 @@ void CahnHilliardPhaseField<dim>::build3D(){
 template<int dim>
 void CahnHilliardPhaseField<dim>::update_implicit(int nsteps){
 	if (!did_build_matrix){
-        throw runtime_error("The matrices for implicit solution has not been built!");
+        this->build_system_matrix();
     }
 
 	// Keep a copy of the grid
