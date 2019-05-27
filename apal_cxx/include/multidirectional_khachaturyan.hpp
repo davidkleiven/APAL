@@ -32,6 +32,10 @@ class MultidirectionalKhachaturyan{
 
         template<int dim>
         void set_logger(MultidirectionalKhachDataLogger<dim> &new_logger);
+
+        /** Calculate the direct contribution from only the misfit strains */
+        template<int dim, class T>
+        double misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const std::vector<int> &shape_fields) const;
     private:
         FFTW *fft{nullptr};
         std::map<unsigned int, Khachaturyan> strain_models;
@@ -40,9 +44,6 @@ class MultidirectionalKhachaturyan{
 
         template<int dim>
         double fourier_integral(const MMSP::grid<dim, MMSP::vector<fftw_complex> >&ft_fields, const std::vector<int> &shape_fields) const;
-
-        template<int dim, class T>
-        double misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const std::vector<int> &shape_fields) const;
 
         void get_effective_stresses(std::vector<mat3x3> &eff_stress) const;
         void index_map(const std::vector<int> &shape_fields, std::map<unsigned int, unsigned int> &mapping) const;
@@ -247,6 +248,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
     template<int dim>
     double MultidirectionalKhachaturyan::fourier_integral(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &ft_fields, const std::vector<int> &shape_fields) const{
         double integral = 0.0;
+        double norm_factor = MMSP::nodes(ft_fields);
 
         std::vector<mat3x3> eff_stress;
         get_effective_stresses(eff_stress);
@@ -295,8 +297,9 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
 
                 // Construct B_tensor element
                 double element = B_tensor_element(k_vec, green, eff_stress[b_indx1], eff_stress[b_indx2]);
-                integral += element*(real(ft_fields(node)[field1])*real(ft_fields(node)[field2]) + \
+                double integral_contrib = element*(real(ft_fields(node)[field1])*real(ft_fields(node)[field2]) + \
                     imag(ft_fields(node)[field1])*imag(ft_fields(node)[field2]));
+                integral += integral_contrib/norm_factor;
             }
         }
         return 0.5*integral;

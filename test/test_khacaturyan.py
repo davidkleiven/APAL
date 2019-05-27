@@ -7,6 +7,7 @@ from apal_cxx import PyKhachaturyan
 from apal_cxx import pytest_functional_derivative
 from apal_cxx import pytest_contract_tensors
 from apal_cxx import pytest_B_tensor_element
+from apal_cxx import pytest_strain_energy_sphere
 from apal.tools import to_full_rank4
 
 
@@ -262,6 +263,28 @@ class TestKhacaturyan(unittest.TestCase):
         # TODO: Confirm that strain[(1, 1)] also satisfies
         # the solution. It seems to have the right structure
         # at least...
+
+    def test_strain_energy(self):
+        misfit = np.zeros((3, 3))
+        misfit[0, 0] = misfit[1, 1] = misfit[2, 2] = 0.05
+        elastic = to_full_rank4(self.get_isotropic_tensor())
+
+        try:
+            result = result = pytest_strain_energy_sphere(elastic, misfit)
+        except RuntimeError as exc:
+            # If fails, make sure that it is for the right reason
+            self.assertTrue("The package was compiled without FFTW!" in str(exc))
+            return
+        
+
+        # Expected misfit contribution
+        vol = result["volume"]
+        expected_misfit = vol*0.5*np.einsum("ijkl,ij,kl", elastic, misfit, misfit)
+        self.assertAlmostEqual(expected_misfit, result["misfit_contrib"])
+        
+
+        eshelby_energy = self.eshelby_strain_energy_sphere(misfit[0, 0])
+        self.assertAlmostEqual(eshelby_energy, result["energy"]/vol, places=2)
 
         
 if __name__ == "__main__":
