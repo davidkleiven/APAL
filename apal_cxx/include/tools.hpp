@@ -24,8 +24,16 @@ double& real(fftw_complex number){
     return number[0];
 }
 
+double& real(apal_complex_t &number){
+    return number.re;
+}
+
 double& imag(fftw_complex number){
     return number[1];
+}
+
+double &imag(apal_complex_t &number){
+    return number.im;
 }
 
 // Forward-declaration
