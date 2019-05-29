@@ -83,6 +83,9 @@ void FFTW::execute(const vector<double> &vec, vector<fftw_complex> &out, int dir
     }
 
     // Transfer to buffer
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
     for (unsigned int i=0;i<vec.size();i++){
         real(buffer[i]) = vec[i];
         imag(buffer[i]) = 0.0;
@@ -101,6 +104,9 @@ void FFTW::execute(const vector<double> &vec, vector<fftw_complex> &out, int dir
     }
 
     // Transfer back
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
     for (unsigned int i=0;i<vec.size();i++){
         real(out[i]) = real(buffer2[i])/normalization;
         imag(out[i]) = imag(buffer2[i])/normalization;
