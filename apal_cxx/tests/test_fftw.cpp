@@ -7,9 +7,9 @@
 
 using namespace std;
 
-void fft1D(vector<double> &array, int direction){
+int fft1D(vector<double> &array, int direction){
     #ifndef HAS_FFTW
-        return Py_NONE;
+        return 1;
     #endif
 
     int dims[1] = {array.size()};
@@ -20,12 +20,13 @@ void fft1D(vector<double> &array, int direction){
     for (unsigned int i=0;i<out.size();i++){
         array[i] = real(out[i]);
     }
+    return 0;
 }
 
 
-void fft2D(vector<double> &array, int direction){
+int fft2D(vector<double> &array, int direction){
     #ifndef HAS_FFTW
-        return Py_NONE;
+        return 1;
     #endif
 
     int N = static_cast<int>(sqrt(array.size()));
@@ -37,11 +38,12 @@ void fft2D(vector<double> &array, int direction){
     for (unsigned int i=0;i<out.size();i++){
         array[i] = real(out[i]);
     }
+    return 0;
 }
 
-void fft3D(vector<double> &array, int direction){
+int fft3D(vector<double> &array, int direction){
     #ifndef HAS_FFTW
-        return Py_NONE;
+        return 1;
     #endif
 
     int N = static_cast<int>(round(pow(array.size(), 1.0/3.0)));
@@ -53,4 +55,5 @@ void fft3D(vector<double> &array, int direction){
     for (unsigned int i=0;i<out.size();i++){
         array[i] = real(out[i]);
     }
+    return 0;
 }

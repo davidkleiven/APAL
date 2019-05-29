@@ -1,6 +1,6 @@
 #include <vector>
 
 
-void fft1D(std::vector<double> &array, int direction);
-void fft2D(std::vector<double> &array, int direction);
-void fft3D(std::vector<double> &array, int direction);
+int fft1D(std::vector<double> &array, int direction);
+int fft2D(std::vector<double> &array, int direction);
+int fft3D(std::vector<double> &array, int direction);

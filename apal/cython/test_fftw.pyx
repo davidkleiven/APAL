@@ -2,9 +2,9 @@ from libcpp.vector cimport vector
 
 
 cdef extern from "test_fftw.hpp":
-    void fft1D(vector[double] &vec, int direction)
-    void fft2D(vector[double] &vec, int direction)
-    void fft3D(vector[double] &vec, int direction)
+    int fft1D(vector[double] &vec, int direction)
+    int fft2D(vector[double] &vec, int direction)
+    int fft3D(vector[double] &vec, int direction)
 
 
 def pyfft1D(array, direction):
@@ -12,7 +12,10 @@ def pyfft1D(array, direction):
     for i in range(len(array)):
         vec.push_back(array[i])
 
-    fft1D(vec, direction)
+    ret_code = fft1D(vec, direction)
+
+    if ret_code != 0:
+        return None
 
     for i in range(len(array)):
         array[i] = vec[i]
@@ -27,7 +30,10 @@ def pyfft2D(array, direction):
     for i in range(len(array)):
         vec.push_back(array[i])
     
-    fft2D(vec, direction)
+    ret_code = fft2D(vec, direction)
+
+    if ret_code != 0:
+        return None
 
     for i in range(len(array)):
         array[i] = vec[i]
@@ -42,7 +48,10 @@ def pyfft3D(array, direction):
     for i in range(len(array)):
         vec.push_back(array[i])
     
-    fft3D(vec, direction)
+    ret_code = fft3D(vec, direction)
+
+    if ret_code != 0:
+        return None
 
     for i in range(len(array)):
         array[i] = vec[i]
