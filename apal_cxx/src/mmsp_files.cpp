@@ -17,3 +17,4 @@
 // Test files
 #include "test_multidirectional_khachaturyan.cpp"
 #include "test_build_matrices.cpp"
+#include "test_fftw.cpp"

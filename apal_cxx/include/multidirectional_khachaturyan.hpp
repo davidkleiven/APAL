@@ -270,7 +270,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
             }
 
             #ifndef NO_PHASEFIELD_PARALLEL
-            #pragma omp parallel for reduction(+ : integral)
+            #pragma omp parallel for reduction(+ : integral) private(green)
             #endif
             for (int node=0;node<MMSP::nodes(ft_fields);node++){
                 MMSP::vector<int> pos = ft_fields.position(node);

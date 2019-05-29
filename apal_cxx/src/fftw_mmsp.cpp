@@ -31,9 +31,10 @@ FFTW::FFTW(unsigned int dim, const int *dims): dimension(dim){
         }
 
         buffer = fftw_alloc_complex(num_elements_from_dims);
+        buffer2 = fftw_alloc_complex(num_elements_from_dims);
 
-        forward_plan =  fftw_plan_dft(dim, dims, buffer, buffer, FFTW_FORWARD, FFTW_ESTIMATE);
-        backward_plan = fftw_plan_dft(dim, dims, buffer, buffer, FFTW_BACKWARD, FFTW_ESTIMATE);
+        forward_plan =  fftw_plan_dft(dim, dims, buffer, buffer2, FFTW_FORWARD, FFTW_ESTIMATE);
+        backward_plan = fftw_plan_dft(dim, dims, buffer, buffer2, FFTW_BACKWARD, FFTW_ESTIMATE);
 
     // #else
     //     throw runtime_error("FFTW class cannot be initialized when the code has been compiled without the HAS_FFTW macro!");
@@ -45,6 +46,7 @@ FFTW::~FFTW(){
         fftw_destroy_plan(forward_plan);
         fftw_destroy_plan(backward_plan);
         fftw_free(buffer);
+        fftw_free(buffer2);
     #endif
 }
 
@@ -81,6 +83,9 @@ void FFTW::execute(const vector<double> &vec, vector<fftw_complex> &out, int dir
     }
 
     // Transfer to buffer
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
     for (unsigned int i=0;i<vec.size();i++){
         real(buffer[i]) = vec[i];
         imag(buffer[i]) = 0.0;
@@ -99,8 +104,11 @@ void FFTW::execute(const vector<double> &vec, vector<fftw_complex> &out, int dir
     }
 
     // Transfer back
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
     for (unsigned int i=0;i<vec.size();i++){
-        real(out[i]) = real(buffer[i])/normalization;
-        imag(out[i]) = imag(buffer[i])/normalization;
+        real(out[i]) = real(buffer2[i])/normalization;
+        imag(out[i]) = imag(buffer2[i])/normalization;
     }
 }

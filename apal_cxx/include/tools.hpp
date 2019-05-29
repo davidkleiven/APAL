@@ -20,13 +20,23 @@
 
 typedef std::array< std::array<double, 3>, 3> mat3x3;
 
-double& real(fftw_complex number){
-    return number[0];
-}
+#ifdef HAS_FFTW
+    double& real(fftw_complex number){
+        return number[0];
+    }
 
-double& imag(fftw_complex number){
-    return number[1];
-}
+    double& imag(fftw_complex number){
+        return number[1];
+    }
+#else
+    double& real(apal_complex_t &number){
+        return number.re;
+    }
+
+    double& imag(apal_complex_t &number){
+        return number.im;
+    }
+#endif
 
 // Forward-declaration
 class SparseMatrix;

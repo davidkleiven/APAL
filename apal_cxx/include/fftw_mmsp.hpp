@@ -38,6 +38,7 @@ class FFTW{
         unsigned int dimension{0};
         unsigned int num_elements_from_dims{0};
         fftw_complex *buffer{nullptr};
+        fftw_complex *buffer2{nullptr};
         fftw_plan forward_plan;
         fftw_plan backward_plan;
 
@@ -114,11 +115,11 @@ void FFTW::execute(const ft_grid_t<dim> & grid_in, ft_grid_t<dim> &grid_out, int
             #pragma omp parallel for
             #endif
             for (unsigned int i=0;i<MMSP::nodes(grid_out);i++){
-                real(buffer[i]) /= normalization;
-                imag(buffer[i]) /= normalization;
+                real(buffer2[i]) /= normalization;
+                imag(buffer2[i]) /= normalization;
 
-                real(grid_out(i)[field]) = real(buffer[i]);
-                imag(grid_out(i)[field]) = imag(buffer[i]);
+                real(grid_out(i)[field]) = real(buffer2[i]);
+                imag(grid_out(i)[field]) = imag(buffer2[i]);
             }
         }
     #endif
@@ -155,9 +156,9 @@ void FFTW::execute(const MMSP::grid<dim, fftw_complex> &grid_in, MMSP::grid<dim,
         #pragma omp parallel for
         #endif
         for (unsigned int i=0;i<MMSP::nodes(grid_out);i++){
-            real(buffer[i]) /= normalization;
-            imag(buffer[i]) /= normalization;
-            grid_out(i) = buffer[i];
+            real(buffer2[i]) /= normalization;
+            imag(buffer2[i]) /= normalization;
+            grid_out(i) = buffer2[i];
         }
     #endif
 };

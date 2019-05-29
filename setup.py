@@ -7,7 +7,7 @@ from Cython.Build import cythonize
 import os
 from textwrap import dedent
 
-fftw_libs = ["fftw3_threads", "fftw3"]
+fftw_libs = ["fftw3_omp", "fftw3", "m"]
 
 def check_fftw():
     """Check if FFTW extension works."""
