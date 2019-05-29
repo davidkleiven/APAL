@@ -3,7 +3,7 @@
 #include "fftw_mmsp.hpp"
 #include "fftw_complex_placeholder.hpp"
 #include <cmath>
-#include <iostream>
+#include <omp.h>
 
 using namespace std;
 
