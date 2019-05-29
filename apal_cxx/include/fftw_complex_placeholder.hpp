@@ -1,13 +1,13 @@
 #ifndef FFTW_COMPLEX_PLACEHOLDER_H
 #define FFTW_COMPLEX_PLACEHOLDER_H
 
+#ifndef HAS_FFTW
+#include <complex>
+
 struct apal_complex_t{
     double re;
     double im;
 };
-
-#ifndef HAS_FFTW
-#include <complex>
 
 //typedef double fftw_complex[2];
 typedef apal_complex_t fftw_complex;
