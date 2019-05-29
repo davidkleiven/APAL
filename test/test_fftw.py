@@ -58,21 +58,6 @@ class TestFFTW(unittest.TestCase):
             ft_real *= scale
             self.assertTrue(np.allclose(ft_real, ft_npy))
 
-    def test_thread_consistency(self):
-        import multiprocessing as mp
-        num_cpu = mp.cpu_count()
-        os.environ['OMP_NUM_THREADS'] = "1"
-        array = np.linspace(0.0, 10.0, 128)
-        ft_array = pyfft1D(array.copy(), 1)
-
-        if ft_array is None:
-            self.skipTest("Coult not perform FFT")
-
-        for num_threads in range(2, num_cpu+1):
-            os.environ['OMP_NUM_THREADS'] = str(num_threads)
-            ft_multithread = pyfft1D(array.copy(), 1)
-            self.assertTrue(np.allclose(ft_array, ft_multithread))
-
 
 
 if __name__ == "__main__":
