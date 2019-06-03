@@ -27,6 +27,6 @@ private:
     bool keys_match();
     void init_keys_from_file();
     void init_keys_from_entry(const track_value_row_t &entry);
-    void write_keys();
+    void write_keys(const keys_t &keys);
 };
 #endif

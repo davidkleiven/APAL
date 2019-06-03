@@ -44,7 +44,9 @@ void TrackValueLogger::init_keys_from_file(){
     while (loop_indx++ < max_loop_indx){
         int pos = line.find(",");
         if (pos != std::string::npos){
-            keys.push_back(line.substr(0, pos));
+            if (line.substr(0, pos) != "Iter"){
+                keys.push_back(line.substr(0, pos));
+            }
             line.erase(0, pos+1);
         }
         else{
@@ -66,4 +68,28 @@ void TrackValueLogger::init_keys_from_entry(const track_value_row_t &entry){
     for (auto iter=entry.begin(); iter != entry.end(); ++iter){
         keys.push_back(iter->first);
     }
+    write_keys(keys);
+}
+
+void TrackValueLogger::write_keys(const keys_t &keys){
+    logfile << "# Iter,";
+    for (unsigned int i=0;i<keys.size()-1;i++){
+        logfile << keys[i] << ",";
+    }
+    logfile << keys.back() << "\n";
+    logfile << flush;
+}
+
+void TrackValueLogger::log(unsigned int iter, const track_value_row_t &entry){
+
+    if (keys.size() == 0){
+        init_keys_from_entry(entry);
+    }
+
+    logfile << iter;
+    for (const auto& key : keys){
+        logfile << "," << entry.at(key);
+    }
+    logfile << "\n";
+    logfile << flush;
 }

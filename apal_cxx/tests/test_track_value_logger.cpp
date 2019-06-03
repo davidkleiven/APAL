@@ -13,8 +13,8 @@ bool read_from_file(){
         throw runtime_error("Could not open file in read_from_file!");
     }
 
-    out << "# Item1,Item2,Item3,Item4,Item5\n";
-    out << "0.5,0.2,0.6,0.8,1.0\n";
+    out << "# Iter,Item1,Item2,Item3,Item4,Item5\n";
+    out << "1,0.5,0.2,0.6,0.8,1.0\n";
     out.close();
 
     TrackValueLogger logger(fname);
@@ -39,4 +39,15 @@ bool read_from_file(){
         }
     }
     return true;
+}
+
+void init_keys_from_entry(){
+    track_value_row_t entry;
+    entry["Value1"] = 0.1;
+    entry["Value2"] = -1.2;
+    entry["Value3"] = 0.4;
+
+    string fname("init_key_from_entry.txt");
+    TrackValueLogger logger(fname);
+    logger.log(1, entry);
 }
