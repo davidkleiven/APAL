@@ -31,3 +31,4 @@ cdef extern from "mmsp_files.cpp":
 include "test_multidirectional_khachaturyan.pyx"
 include "test_build_matrices.pyx"
 include "test_fftw.pyx"
+include "test_track_value_logger.pyx"
