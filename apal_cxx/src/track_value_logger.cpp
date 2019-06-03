@@ -86,10 +86,27 @@ void TrackValueLogger::log(unsigned int iter, const track_value_row_t &entry){
         init_keys_from_entry(entry);
     }
 
+    if (!keys_match(entry)){
+        throw invalid_argument("Key in log entry does not match!");
+    }
+
     logfile << iter;
     for (const auto& key : keys){
         logfile << "," << entry.at(key);
     }
     logfile << "\n";
     logfile << flush;
+}
+
+bool TrackValueLogger::keys_match(const track_value_row_t &entry){
+    if (keys.size() != entry.size()){
+        return false;
+    }
+
+    for (const auto& key : keys){
+        if (entry.find(key) == entry.end()){
+            return false;
+        }
+    }
+    return true;
 }

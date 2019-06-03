@@ -13,7 +13,7 @@ using namespace std;
 template<int dim>
 PhaseFieldSimulation<dim>::PhaseFieldSimulation(int L, \
                      const std::string &prefix, unsigned int num_fields): \
-                     L(L), prefix(prefix), num_fields(num_fields){
+                     L(L), prefix(prefix), num_fields(num_fields), track_logger(prefix+"_trackvalues.csv"){
                          if (dim == 1){
                              grid_ptr = new MMSP::grid<dim, MMSP::vector<double> >(num_fields, 0, L);
                          }
@@ -62,11 +62,15 @@ void PhaseFieldSimulation<dim>::run(unsigned int start, unsigned int nsteps, int
         ss << prefix << get_digit_string(iter+increment) << ".grid";
         grid_ptr->output(ss.str().c_str());
 
+        if (track_values.size() > 0){
+            track_logger.log(iter, track_values.back());
+        }
+
         if (this->quit){
             break;
         }
     }
-    save_track_values();
+    // save_track_values();
 }
 
 template<int dim>

@@ -24,7 +24,7 @@ private:
     std::ofstream logfile;
     keys_t keys;
 
-    bool keys_match();
+    bool keys_match(const track_value_row_t &entry);
     void init_keys_from_file();
     void init_keys_from_entry(const track_value_row_t &entry);
     void write_keys(const keys_t &keys);
