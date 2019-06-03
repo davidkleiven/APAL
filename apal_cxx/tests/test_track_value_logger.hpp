@@ -6,4 +6,7 @@ bool read_from_file();
 
 /** Test initialise keys from entry */
 void init_keys_from_entry();
+
+/** Try to initialise the file from an existing file */
+void track_values_append();
 #endif

@@ -73,7 +73,7 @@ void TrackValueLogger::init_keys_from_entry(const track_value_row_t &entry){
 
 void TrackValueLogger::write_keys(const keys_t &keys){
     logfile << "# Iter,";
-    for (unsigned int i=0;i<keys.size()-1;i++){
+    for (int i=0;i<keys.size()-1;i++){
         logfile << keys[i] << ",";
     }
     logfile << keys.back() << "\n";

@@ -51,3 +51,24 @@ void init_keys_from_entry(){
     TrackValueLogger logger(fname);
     logger.log(1, entry);
 }
+
+void track_values_append(){
+    string fname("test_track_values_append.txt");
+
+    ofstream out(fname);
+
+    if (!out.good()){
+        throw runtime_error("track_values_append could not open file!");
+    }
+
+    out << "# Iter,Value1,Value2\n";
+    out << "1,0.2,0.3\n";
+    out.close();
+
+    TrackValueLogger logger(fname);
+
+    track_value_row_t entry;
+    entry["Value1"] = -0.2;
+    entry["Value2"] = 9.9;
+    logger.log(2, entry);
+}
