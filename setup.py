@@ -64,7 +64,7 @@ phasefield_sources = ["mat4D.cpp", "khacaturyan.cpp",
                       "polynomial.cpp", "regression_kernels.cpp", "kernel_regressor.cpp",
                       "sparse_matrix.cpp", "gaussian_white_noise.cpp",
                       "adaptive_timestep_logger.cpp", "additional_tools.cpp",
-                      "dense_matrix.cpp"]
+                      "dense_matrix.cpp", "track_value_logger.cpp"]
 apal_cxx_tests = []
 
 phasefield_sources = [src_phase + "/" + x for x in phasefield_sources]

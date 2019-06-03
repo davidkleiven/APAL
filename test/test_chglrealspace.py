@@ -85,5 +85,10 @@ class TestCHGLRealSpace(unittest.TestCase):
             os.remove('chglrealspacetrack_values.csv')
         except Exception:
             pass
+
+        try:
+            os.remove("chglrealspace_trackvalues.csv")
+        except OSError:
+            pass
 if __name__ == "__main__":
     unittest.main()

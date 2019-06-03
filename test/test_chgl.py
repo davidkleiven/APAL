@@ -105,6 +105,11 @@ class TestCHGL(unittest.TestCase):
         except OSError:
             pass
 
+        try:
+            os.remove("chgl_trackvalues.csv")
+        except OSError:
+            pass
+
 
 if __name__ == "__main__":
     unittest.main()

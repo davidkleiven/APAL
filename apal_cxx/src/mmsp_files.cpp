@@ -18,3 +18,4 @@
 #include "test_multidirectional_khachaturyan.cpp"
 #include "test_build_matrices.cpp"
 #include "test_fftw.cpp"
+#include "test_track_value_logger.cpp"
