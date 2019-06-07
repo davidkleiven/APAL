@@ -43,6 +43,7 @@ PyObject* laplacian_matrix3D(){
 
     unsigned int N = pow(SIZE_3D_BUILD_MATRIX, 3);
     DenseMatrix dense_matrix(N, N);
+    dense_matrix.fill_zeros();
     sp_mat.to_dense(dense_matrix);
 
     // Convert to numpy object
@@ -67,9 +68,12 @@ PyObject* get_small_biharmonic(){
 
     cahn_hilliard_system_matrix3D(8, M, alpha, dt, sp_mat);
 
+    //sp_mat.save("sparse_mat.csv");
     int num_nodes = 8*8*8;
     DenseMatrix dense_matrix(num_nodes, num_nodes);
+    dense_matrix.fill_zeros();
     sp_mat.to_dense(dense_matrix);
+    //dense_matrix.save("dense_matrix.csv");
 
     npy_intp dims[2] = {num_nodes, num_nodes};
     PyObject* npy_array = PyArray_SimpleNew(2, dims, NPY_DOUBLE);

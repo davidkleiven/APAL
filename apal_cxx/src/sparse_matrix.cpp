@@ -156,6 +156,9 @@ void SparseMatrix::to_csr(){
 
 void SparseMatrix::to_dense(DenseMatrix &mat) const{
     for (unsigned int i=0;i<values.size();i++){
+        if (!mat.is_valid(row[i], col[i])){
+            throw invalid_argument("The dense matrix passed is too small!");
+        }
         mat(row[i], col[i]) = values[i];
     }
 }

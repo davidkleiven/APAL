@@ -65,12 +65,14 @@ class TestBuildMatrices(unittest.TestCase):
         #mat -= np.identity(mat.shape[0])
         #mat *= 0.5  # C++ returns 2*biharmonic
         from matplotlib import pyplot as plt
-        plt.matshow(mat)
+        plt.imshow(mat, interpolation="none")
         plt.show()
+
+        print(np.allclose(mat, mat.T))
         
-        for i in range(mat.shape[0]):
-            s = np.sum(np.abs(mat[i, :])) #- np.abs(mat[i, i])
-            print(s)
+        # for i in range(mat.shape[0]):
+        #     s = np.sum(np.abs(mat[i, :])) #- np.abs(mat[i, i])
+        #     print(s)
 
 if __name__ == "__main__":
     unittest.main()
