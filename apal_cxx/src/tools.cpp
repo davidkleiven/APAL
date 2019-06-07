@@ -210,6 +210,11 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
   if (!mat.is_symmetric()){
       throw runtime_error("System matrix 3D has to be symmetric!");
   }
+
+  if (mat.has_duplicates()){
+      throw runtime_error("System matrix has duplicate entries!");
+  }
+  
   mat.to_csr();
 }
 

@@ -1,6 +1,7 @@
 import unittest
 from apal_cxx import pytest_biharmonic_matrix
 from apal_cxx import pytest_laplacian_matrix3D
+from apal_cxx import pytest_get_small_biharmonic
 from scipy.ndimage.filters import laplace
 from scipy.linalg import toeplitz
 import numpy as np
@@ -59,6 +60,17 @@ class TestBuildMatrices(unittest.TestCase):
         self.assertTrue(np.allclose(flat_lap3D, flat_mat))
 
 
+    def test_biharmonic_positive_definite(self):
+        mat = pytest_get_small_biharmonic()
+        #mat -= np.identity(mat.shape[0])
+        #mat *= 0.5  # C++ returns 2*biharmonic
+        from matplotlib import pyplot as plt
+        plt.matshow(mat)
+        plt.show()
+        
+        for i in range(mat.shape[0]):
+            s = np.sum(np.abs(mat[i, :])) #- np.abs(mat[i, i])
+            print(s)
 
 if __name__ == "__main__":
     unittest.main()

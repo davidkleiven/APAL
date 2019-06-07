@@ -159,3 +159,13 @@ void SparseMatrix::to_dense(DenseMatrix &mat) const{
         mat(row[i], col[i]) = values[i];
     }
 }
+
+bool SparseMatrix::has_duplicates() const{
+    for (unsigned int i=0;i<row.size();i++)
+    for (unsigned int j=i+1;j<row.size();j++){
+        if ((row[i] == row[j]) && (col[i] == col[j])){
+            return true;
+        }
+    }
+    return false;
+}

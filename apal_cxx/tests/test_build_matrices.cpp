@@ -58,3 +58,27 @@ PyObject* laplacian_matrix3D(){
     }
     return npy_array;
 }
+
+PyObject* get_small_biharmonic(){
+    SparseMatrix sp_mat;
+    double alpha = 1.0;
+    double M = 1.0;
+    double dt = 1.0;
+
+    cahn_hilliard_system_matrix3D(8, M, alpha, dt, sp_mat);
+
+    int num_nodes = 8*8*8;
+    DenseMatrix dense_matrix(num_nodes, num_nodes);
+    sp_mat.to_dense(dense_matrix);
+
+    npy_intp dims[2] = {num_nodes, num_nodes};
+    PyObject* npy_array = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+
+    // Transfer dense-matrix to the Numpy array
+    for (unsigned int row=0;row<num_nodes;row++)
+    for (unsigned int col=0;col<num_nodes;col++){
+        double* ptr = static_cast<double*>(PyArray_GETPTR2(npy_array, row, col));
+        *ptr = dense_matrix(row, col);
+    }
+    return npy_array;
+}

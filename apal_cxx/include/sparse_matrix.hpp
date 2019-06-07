@@ -27,6 +27,9 @@ public:
 
     /** Convert to dense matrix. It is assumed that dense_mat has the correct number of rows and columns */
     void to_dense(DenseMatrix &dense_mat) const;
+
+    /** Check if the same row column pair is inserted multiple times */
+    bool has_duplicates() const;
 private:
     bool converted_to_csr{false};
     unsigned int num_rows{0};
