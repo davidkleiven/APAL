@@ -19,6 +19,7 @@ PyObject* biharmonic_matrix(){
     // Convert the sparse matrix to a full matrix
     unsigned int N = pow(SIZE_3D_BUILD_MATRIX, 3);
     DenseMatrix dense_matrix(N, N);
+    dense_matrix.fill_zeros();
 
     sp_mat.to_dense(dense_matrix);
 

@@ -60,19 +60,13 @@ class TestBuildMatrices(unittest.TestCase):
         self.assertTrue(np.allclose(flat_lap3D, flat_mat))
 
 
-    def test_biharmonic_positive_definite(self):
+    def test_biharmonic_semi_positive_definite(self):
         mat = pytest_get_small_biharmonic()
-        #mat -= np.identity(mat.shape[0])
-        #mat *= 0.5  # C++ returns 2*biharmonic
-        from matplotlib import pyplot as plt
-        plt.imshow(mat, interpolation="none")
-        plt.show()
+        mat -= np.identity(mat.shape[0])
 
-        print(np.allclose(mat, mat.T))
-        
-        # for i in range(mat.shape[0]):
-        #     s = np.sum(np.abs(mat[i, :])) #- np.abs(mat[i, i])
-        #     print(s)
+        eigvals = np.linalg.eigvalsh(mat)
+        self.assertTrue(np.allclose(mat, mat.T))
+        self.assertTrue(np.all(eigvals >= 0))
 
 if __name__ == "__main__":
     unittest.main()
