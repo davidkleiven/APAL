@@ -43,6 +43,8 @@ void PhaseFieldSimulation<dim>::random_initialization(unsigned int field_no, dou
     stringstream ss;
     ss << prefix << ".grid";
     grid_ptr->output(ss.str().c_str());
+
+    cout << "Field " << field_no << " randomised in range [" << lower << ", " << upper << "]\n";
 }
 
 template<int dim>
@@ -75,6 +77,7 @@ void PhaseFieldSimulation<dim>::run(unsigned int start, unsigned int nsteps, int
 
 template<int dim>
 void PhaseFieldSimulation<dim>::from_file(const std::string &fname){
+    cout << "Loading initial configuration from " << fname << endl;
     grid_ptr->input(fname.c_str(), 1, false);
 }
 
@@ -108,6 +111,7 @@ void PhaseFieldSimulation<dim>::from_npy_array(PyObject *npy_arrays){
         PyObject *npy_arr = PyList_GetItem(npy_arrays, i);
         init_field_from_npy_arr(i, npy_arr);
     }
+    cout << "Initial configuration set from Numpy arrays\n";
 }
 
 template<int dim>
