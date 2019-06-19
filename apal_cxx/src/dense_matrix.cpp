@@ -1,5 +1,6 @@
 #include "dense_matrix.hpp"
 #include <fstream>
+#include <stdexcept>
 
 using namespace std;
 
