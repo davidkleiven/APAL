@@ -613,12 +613,27 @@ class TwoPhaseLandauPolynomial(object):
         deriv[deriv>100*np.median(deriv)] = 0.0
 
         def eq(x):
-            integrand = np.sqrt(np.sqrt(surf_form)*(alpha + x*deriv**2))
+            beta = x[0]**2  # Avoid negative values inside square root
+            integrand = np.sqrt(surf_form)*np.sqrt(alpha + beta*deriv**2)
             interface_energy = 2*np.trapz(integrand, x=conc)
             return interface_energy - gamma
 
-        root = fsolve(eq, alpha)
-        return root
+        def jac(x):
+            beta = x[0]**2  # Avoid negative values inside square root
+            integrand = 0.5*np.sqrt(surf_form)/np.sqrt(alpha + beta*deriv**2)
+            integrand *= deriv**2
+            fprime = 2*np.trapz(integrand, x=conc)
+            array_fprime = np.zeros_like(x)
+
+            # We need to differentiate with respect to x, not beta
+            # Apply kernel rule
+            array_fprime[0] = 2*x[0]*fprime
+            return array_fprime
+
+        root, infodict, ier, mesg = fsolve(eq, np.sqrt(alpha), fprime=jac, full_output=True)
+        beta = np.sqrt(root)
+        print("Target surface tension: {}. Difference: {}".format(gamma, infodict["fvec"]))
+        return beta
 
     def conc_grad_param(self, gamma, x, surf_form):
         """Obtain gradient coefficients via a linearised approximation to the governing equations.
