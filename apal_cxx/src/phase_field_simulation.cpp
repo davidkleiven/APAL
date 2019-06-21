@@ -54,6 +54,10 @@ void PhaseFieldSimulation<dim>::random_initialization(double lower, double upper
 
 template<int dim>
 void PhaseFieldSimulation<dim>::run(unsigned int start, unsigned int nsteps, int increment){
+    // Store the fields at input
+    string init_fname = prefix + "initstruct.grid";
+    grid_ptr->output(init_fname.c_str());
+
     for (unsigned int iter=start;iter<nsteps+start; iter+=increment){
         cout << "Simulation start...\n";
         this->update(increment);
