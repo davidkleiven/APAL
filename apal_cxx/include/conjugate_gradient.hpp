@@ -8,7 +8,7 @@ class ConjugateGradient{
 public:
     ConjugateGradient(double tol);
 
-    void solve(const SparseMatrix &matrix, const std::vector<double> &rhs, std::vector<double> &x) const;
+    void solve(const SparseMatrix &matrix, const std::vector<double> &rhs, std::vector<double> &x);
 
     unsigned int get_num_iter() const {return last_num_iter;};
 private:

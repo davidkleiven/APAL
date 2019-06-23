@@ -5,7 +5,7 @@
 using namespace std;
 ConjugateGradient::ConjugateGradient(double tol): tol(tol){};
 
-void ConjugateGradient::solve(const SparseMatrix &mat, const vector<double> &rhs, vector<double> &x) const{
+void ConjugateGradient::solve(const SparseMatrix &mat, const vector<double> &rhs, vector<double> &x){
     vector<double> residual = rhs;
     vector<double> Ax(x.size());
     vector<double> Ap(x.size());

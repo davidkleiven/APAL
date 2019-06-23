@@ -245,8 +245,8 @@ void CHGLRealSpace<dim>::update(int nsteps){
             diff = end - start;
             timing["cg_solver"] += chrono::duration<double, milli> (diff).count();
 
-            if (cg.get_last_iter() > cg_iterations[field]){
-                cg_iterations[field] = cg.get_last_iter();
+            if (cg.get_num_iter() > cg_iterations[field]){
+                cg_iterations[field] = cg.get_num_iter();
             }
 
             // Transfer the field values back
