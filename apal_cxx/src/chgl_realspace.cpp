@@ -162,6 +162,12 @@ void CHGLRealSpace<dim>::update(int nsteps){
 	MMSP::ghostswap(deriv_free_eng);
 
     bool did_lower_timestep = false;
+    double cg_iterations[dim+1]; // Store number of CG iterations
+
+    for (unsigned int i=0;i<dim+1;i++){
+        cg_iterations[i] = 0.0;
+    }
+
     for (int step=0;step<nsteps;step++){
         // Calculate all the derivatives
         if (rank == 0){
@@ -215,6 +221,10 @@ void CHGLRealSpace<dim>::update(int nsteps){
             // Solve with CG
             cg.solve(matrices[field], rhs, field_values);
 
+            if (cg.get_last_iter() > cg_iterations[field]){
+                cg_iterations[field] = cg.get_last_iter();
+            }
+
             // Transfer the field values back
             for (unsigned int i=0;i<MMSP::nodes(gr);i++){
                 gr(i)[field] = field_values[i];
@@ -262,6 +272,10 @@ void CHGLRealSpace<dim>::update(int nsteps){
         energy_values["max_shape_func_deriv"] = max_strain_deriv;
     }
 
+    for (unsigned int i=0;i<dim+1;i++){
+        energy_values["cg_iter" + to_string(i)] = cg_iterations[i];
+    }
+        
     log_tritem(energy_values);
     this->track_values.push_back(energy_values);
 }
