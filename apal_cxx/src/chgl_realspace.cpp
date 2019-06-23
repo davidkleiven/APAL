@@ -248,8 +248,6 @@ void CHGLRealSpace<dim>::update(int nsteps){
     }
 
     // Calculate the energy
-    
-
     this->update_counter += 1;
 
     if ((this->update_counter%this->increase_dt == 0) && this->adaptive_dt && !did_lower_timestep){
