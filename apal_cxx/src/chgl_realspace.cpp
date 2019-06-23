@@ -162,9 +162,9 @@ void CHGLRealSpace<dim>::update(int nsteps){
 	MMSP::ghostswap(deriv_free_eng);
 
     bool did_lower_timestep = false;
-    double cg_iterations[dim+1]; // Store number of CG iterations
+    double cg_iterations[MMSP::fields(gr)]; // Store number of CG iterations
 
-    for (unsigned int i=0;i<dim+1;i++){
+    for (unsigned int i=0;i<MMSP::fields(gr);i++){
         cg_iterations[i] = 0.0;
     }
 
@@ -270,7 +270,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
         energy_values["max_shape_func_deriv"] = max_strain_deriv;
     }
 
-    for (unsigned int i=0;i<dim+1;i++){
+    for (unsigned int i=0;i<MMSP::fields(gr);i++){
         energy_values["cg_iter" + to_string(i)] = cg_iterations[i];
     }
         
