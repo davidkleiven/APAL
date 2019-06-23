@@ -3,6 +3,7 @@
 #include <limits>
 #include <cmath>
 #include <stdexcept>
+#include <chrono>
 
 using namespace std;
 
@@ -168,11 +169,19 @@ void CHGLRealSpace<dim>::update(int nsteps){
         cg_iterations[i] = 0.0;
     }
 
+    map<string, double> timing;
+    timing["cg_solver"] = 0.0;
+    timing["strain_evaluation"] = 0.0;
+    timing["field_preparation"] = 0.0;
+    timing["field_transfer"] = 0.0;
+
     for (int step=0;step<nsteps;step++){
         // Calculate all the derivatives
         if (rank == 0){
                 MMSP::print_progress(step, nsteps);
             }
+        
+        auto start = chrono::steady_clock::now();
         #ifndef NO_PHASEFIELD_PARALLEL
         #pragma omp parallel for
         #endif
@@ -190,13 +199,21 @@ void CHGLRealSpace<dim>::update(int nsteps){
             }
             deriv_free_eng(i) = free_eng_deriv;
         }
+        auto end = chrono::steady_clock::now();
+        auto diff = end - start;
+        timing["field_preparation"] += chrono::duration<double, milli> (diff).count();
 
         // Calculate the strain functional derivatives
+        start = chrono::steady_clock::now();
         calculate_strain_contribution();
+        end = chrono::steady_clock::now();
+        diff = end - start;
+        timing["strain_evaluation"] += chrono::duration<double, milli> (diff).count();
         //std::cout << min_strain_deriv << " " << max_strain_deriv << std::endl;
 
         // Solve each field with the conjugate gradient method
         for (unsigned int field=0;field<MMSP::fields(gr);field++){
+            start = chrono::steady_clock::now();
             vector<double> rhs;
             vector<double> field_values;
             for (unsigned int i=0;i<MMSP::nodes(gr);i++){
@@ -209,6 +226,9 @@ void CHGLRealSpace<dim>::update(int nsteps){
                     rhs.push_back(gr(i)[field] - this->dt*this->gl_damping*deriv_free_eng(i)[field]);
                 }
             }
+            end = chrono::steady_clock::now();
+            diff = end - start;
+            timing["field_transfer"] += chrono::duration<double, milli> (diff).count();
 
             // Add Cook noise (note this function does not do anything if the 
             // user has not requested to include noise)
@@ -219,7 +239,11 @@ void CHGLRealSpace<dim>::update(int nsteps){
             }
 
             // Solve with CG
+            start = chrono::steady_clock::now();
             cg.solve(matrices[field], rhs, field_values);
+            end = chrono::steady_clock::now();
+            diff = end - start;
+            timing["cg_solver"] += chrono::duration<double, milli> (diff).count();
 
             if (cg.get_last_iter() > cg_iterations[field]){
                 cg_iterations[field] = cg.get_last_iter();
@@ -273,7 +297,9 @@ void CHGLRealSpace<dim>::update(int nsteps){
     for (unsigned int i=0;i<MMSP::fields(gr);i++){
         energy_values["cg_iter" + to_string(i)] = cg_iterations[i];
     }
-        
+    
+    // Transfer timing results
+    energy_values.insert(timing.begin(), timing.end());
     log_tritem(energy_values);
     this->track_values.push_back(energy_values);
 }
