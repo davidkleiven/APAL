@@ -40,6 +40,7 @@ void ConjugateGradient::solve(const SparseMatrix &mat, const vector<double> &rhs
 
         if (inf_norm(residual) < tol){
             did_converge = true;
+            last_num_iter = iter;
             break;
         }
 
