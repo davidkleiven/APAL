@@ -273,5 +273,5 @@ double sum_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsign
     for (unsigned int node=0;node<MMSP::nodes(grid);node++){
         value += real(grid(node)[field]);
     }
-    return sum;
+    return value;
 }

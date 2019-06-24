@@ -348,12 +348,12 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
 
 
     template<int dim, class T>
-    double MultidirectionalKhachaturyan::volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields){
+    double MultidirectionalKhachaturyan::volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const {
         double vol = 0.0;
         for (int field : shape_fields){
             vol += sum_real(grid, field);
         }
-        return volume;
+        return vol;
     }
 
     // Get logger
