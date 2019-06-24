@@ -27,8 +27,9 @@ double TwoPhaseLandau::partial_deriv_conc(double conc, const vector<double> &sha
 
 double TwoPhaseLandau::partial_deriv_conc(double x[]) const{
     const unsigned int N = 5;
-    const double dx = 0.05/N;
-    double current_conc = x[0]-dx/2.0;
+    const double conc_width = 0.05;
+    const double dx = conc_width/(N-1);
+    double current_conc = x[0]-conc_width/2.0;
     double concs[N];
     double energies[N];
 
