@@ -222,7 +222,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
                 field_values[i] = gr(i)[field];
 
                 if (field == 0){
-                    rhs[i] = gr(i)[field] + this->dt*this->M*MMSP::laplnacian(deriv_free_eng, i, 0);
+                    rhs[i] = gr(i)[field] + this->dt*this->M*MMSP::laplacian(deriv_free_eng, i, 0);
                 }
                 else{
                     rhs[i] = gr(i)[field] - this->dt*this->gl_damping*deriv_free_eng(i)[field];
