@@ -262,3 +262,16 @@ double min_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsign
     }
     return min_val;
 }
+
+template<int dim>
+double sum_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsigned int field){
+    double value = 0.0;
+    
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for reduction(+ : value)
+    #endif
+    for (unsigned int node=0;node<MMSP::nodes(grid);node++){
+        value += real(grid(node)[field]);
+    }
+    return value;
+}

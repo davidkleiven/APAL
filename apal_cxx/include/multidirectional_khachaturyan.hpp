@@ -36,6 +36,10 @@ class MultidirectionalKhachaturyan{
         /** Calculate the direct contribution from only the misfit strains */
         template<int dim, class T>
         double misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const std::vector<int> &shape_fields) const;
+
+        /** Calculate the volume of the auxillary fields */
+        template<int dim, class T>
+        double volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const;
     private:
         FFTW *fft{nullptr};
         std::map<unsigned int, Khachaturyan> strain_models;
@@ -108,6 +112,12 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
 
         double shape_contrib = fourier_integral(grid_out, shape_fields);
         last_strain_energy = misfit_energy_contrib - shape_contrib;
+
+        // Normalise strain energy by volume
+        double vol = volume(shape_squared, shape_fields);
+        if (vol > 1E-6){
+            last_strain_energy /= vol;
+        }
 
         // Pre-calculate effective stresses
         std::map<unsigned int, mat3x3> eff_stresses;
@@ -336,6 +346,15 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
         return 0.5*integral;
     }
 
+
+    template<int dim, class T>
+    double MultidirectionalKhachaturyan::volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const {
+        double vol = 0.0;
+        for (int field : shape_fields){
+            vol += sum_real(grid, field);
+        }
+        return vol;
+    }
 
     // Get logger
     template<>
