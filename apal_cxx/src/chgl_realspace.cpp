@@ -182,22 +182,20 @@ void CHGLRealSpace<dim>::update(int nsteps){
             }
         
         auto start = chrono::steady_clock::now();
+
         #ifndef NO_PHASEFIELD_PARALLEL
         #pragma omp parallel for
         #endif
         for (int i=0;i<MMSP::nodes(gr);i++){
-            MMSP::vector<double> phi = gr(i);
-            MMSP::vector<double> free_eng_deriv(phi.length());
-
+            MMSP::vector<double> &phi = gr(i);
             double *phi_raw_ptr = &(phi[0]);
 
             // Get partial derivative with respect to concentration
-            free_eng_deriv[0]= this->free_energy->partial_deriv_conc(phi_raw_ptr);
+            deriv_free_eng(i)[0]= this->free_energy->partial_deriv_conc(phi_raw_ptr);
 
             for (unsigned int j=1;j<phi.length();j++){
-                free_eng_deriv[j] = this->free_energy->partial_deriv_shape(phi_raw_ptr, j-1);
+                deriv_free_eng(i)[j] = this->free_energy->partial_deriv_shape(phi_raw_ptr, j-1);
             }
-            deriv_free_eng(i) = free_eng_deriv;
         }
         auto end = chrono::steady_clock::now();
         auto diff = end - start;
