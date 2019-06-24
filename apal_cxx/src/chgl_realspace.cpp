@@ -212,16 +212,20 @@ void CHGLRealSpace<dim>::update(int nsteps){
         // Solve each field with the conjugate gradient method
         for (unsigned int field=0;field<MMSP::fields(gr);field++){
             start = chrono::steady_clock::now();
-            vector<double> rhs;
-            vector<double> field_values;
+            vector<double> rhs(MMSP::nodes(gr));
+            vector<double> field_values(MMSP::nodes(gr));
+
+            #ifndef NO_PHASEFIELD_PARALLEL
+            #pragma omp parallel for
+            #endif
             for (unsigned int i=0;i<MMSP::nodes(gr);i++){
-                field_values.push_back(gr(i)[field]);
+                field_values[i] = gr(i)[field];
 
                 if (field == 0){
-                    rhs.push_back(gr(i)[field] + this->dt*this->M*MMSP::laplacian(deriv_free_eng, i, 0));
+                    rhs[i] = gr(i)[field] + this->dt*this->M*MMSP::laplnacian(deriv_free_eng, i, 0);
                 }
                 else{
-                    rhs.push_back(gr(i)[field] - this->dt*this->gl_damping*deriv_free_eng(i)[field]);
+                    rhs[i] = gr(i)[field] - this->dt*this->gl_damping*deriv_free_eng(i)[field];
                 }
             }
             end = chrono::steady_clock::now();
