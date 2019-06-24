@@ -270,7 +270,7 @@ class TestKhacaturyan(unittest.TestCase):
         elastic = to_full_rank4(self.get_isotropic_tensor())
 
         try:
-            result = result = pytest_strain_energy_sphere(elastic, misfit)
+            result = pytest_strain_energy_sphere(elastic, misfit)
         except RuntimeError as exc:
             # If fails, make sure that it is for the right reason
             self.assertTrue("The package was compiled without FFTW!" in str(exc))
@@ -279,12 +279,12 @@ class TestKhacaturyan(unittest.TestCase):
 
         # Expected misfit contribution
         vol = result["volume"]
-        expected_misfit = vol*0.5*np.einsum("ijkl,ij,kl", elastic, misfit, misfit)
-        self.assertAlmostEqual(expected_misfit, result["misfit_contrib"])
+        expected_misfit = 0.5*np.einsum("ijkl,ij,kl", elastic, misfit, misfit)
+        self.assertAlmostEqual(expected_misfit, result["misfit_contrib"]/vol)
         
 
         eshelby_energy = self.eshelby_strain_energy_sphere(misfit[0, 0])
-        self.assertAlmostEqual(eshelby_energy, result["energy"]/vol, places=2)
+        self.assertAlmostEqual(eshelby_energy, result["energy"], places=2)
 
         
 if __name__ == "__main__":
