@@ -138,5 +138,8 @@ void cahn_hilliard_system_matrix3D(unsigned int L, double M, double alpha, doubl
 void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, SparseMatrix &mat);
 void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor[3], SparseMatrix &mat);
 
+template<int dim>
+double sum_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsigned int field);
+
 #include "tools.tpp"
 #endif
