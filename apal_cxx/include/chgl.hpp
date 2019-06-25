@@ -29,7 +29,7 @@ public:
     virtual ~CHGL();
 
     /** Add a new free energy term to the model */
-    void set_free_energy(const TwoPhaseLandauBase &poly);
+    void set_free_energy(const TwoPhaseLandauBase *poly);
 
     /** Return an array of the free energy */
     void save_free_energy_map(const std::string &fname) const;

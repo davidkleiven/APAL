@@ -294,9 +294,9 @@ void CHGL<dim>::print_polynomial() const{
 }
 
 template<int dim>
-void CHGL<dim>::set_free_energy(const TwoPhaseLandauBase &poly){
-    poly.in_valid_state();
-    free_energy = &poly;
+void CHGL<dim>::set_free_energy(const TwoPhaseLandauBase *poly){
+    poly->in_valid_state();
+    free_energy = poly;
 }
 
 template<int dim>

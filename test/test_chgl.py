@@ -59,7 +59,6 @@ class TestCHGL(unittest.TestCase):
             # if FFTW is not installed
             self.assertTrue("CHGL requires FFTW!" in str(exc))
 
-
     def test_npy_array(self):
         chgl = self.get_chgl()
         array = [np.random.rand(self.L, self.L),

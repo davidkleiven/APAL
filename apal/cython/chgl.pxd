@@ -25,7 +25,7 @@ cdef extern from "chgl.hpp":
 
         object to_npy_array() except +
 
-        void set_free_energy(TwoPhaseLandau &polyter) except+
+        void set_free_energy(TwoPhaseLandau *polyter) except+
 
         void print_polynomial()
 

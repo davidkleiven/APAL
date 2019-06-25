@@ -93,11 +93,11 @@ cdef class PyCHGL:
 
     def set_free_energy(self, PyTwoPhaseLandau term):
         if self.dim == 1:
-            self.thisptr1D.set_free_energy(deref(term.thisptr))
+            self.thisptr1D.set_free_energy(term.thisptr)
         elif self.dim == 2:
-            self.thisptr2D.set_free_energy(deref(term.thisptr))
+            self.thisptr2D.set_free_energy(term.thisptr)
         elif self.dim == 3:
-            self.thisptr3D.set_free_energy(deref(term.thisptr))
+            self.thisptr3D.set_free_energy(term.thisptr)
 
     def print_polynomial(self):
         if self.dim == 1:
