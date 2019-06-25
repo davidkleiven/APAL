@@ -191,10 +191,10 @@ void CHGLRealSpace<dim>::update(int nsteps){
             double *phi_raw_ptr = &(phi[0]);
 
             // Get partial derivative with respect to concentration
-            deriv_free_eng(i)[0]= this->free_energy->partial_deriv_conc(phi_raw_ptr);
+            deriv_free_eng(i)[0]= this->free_energy->partial_deriv_conc_vec(phi_raw_ptr);
 
             for (unsigned int j=1;j<phi.length();j++){
-                deriv_free_eng(i)[j] = this->free_energy->partial_deriv_shape(phi_raw_ptr, j-1);
+                deriv_free_eng(i)[j] = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
             }
         }
         auto end = chrono::steady_clock::now();
@@ -325,7 +325,7 @@ void CHGLRealSpace<dim>::energy(std::map<std::string, double> &tr_item) const{
         //MMSP::vector<double> phi_real(MMSP::fields(gr));
         MMSP::vector<double> phi_real = gr(i);
         double *phi_raw_ptr = &(phi_real[0]);
-        integral += this->free_energy->evaluate(phi_raw_ptr);
+        integral += this->free_energy->evaluate_vec(phi_raw_ptr);
 
         // Contribution from gradient terms
         MMSP::vector<int> pos = gr.position(i);

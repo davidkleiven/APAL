@@ -3,29 +3,16 @@
 #include <cmath>
 
 using namespace std;
-TwoPhaseLandau::TwoPhaseLandau(){};
+TwoPhaseLandau::TwoPhaseLandau(): TwoPhaseLandauBase(){};
 
-double TwoPhaseLandau::evaluate(double conc, const vector<double> &shape) const{
-    double x[4];
-    x[0] = conc;
-    memcpy(x+1, &shape[0], sizeof(double)*shape.size());
-    return evaluate(x);
-}
-
-double TwoPhaseLandau::evaluate(double x[]) const{
+double TwoPhaseLandau::evaluate_vec(double x[]) const{
     double value = regressor->evaluate(x[0]);
     value += polynomial->evaluate(x);
     return value + jump_contrib(x[0]);
 }
 
-double TwoPhaseLandau::partial_deriv_conc(double conc, const vector<double> &shape) const{
-    double x[4];
-    x[0] = conc;
-    memcpy(x+1, &shape[0], sizeof(double)*shape.size());
-    return partial_deriv_conc(x);
-}
 
-double TwoPhaseLandau::partial_deriv_conc(double x[]) const{
+double TwoPhaseLandau::partial_deriv_conc_vec(double x[]) const{
     const unsigned int N = 5;
     const double conc_width = 0.05;
     const double dx = conc_width/(N-1);
@@ -37,7 +24,7 @@ double TwoPhaseLandau::partial_deriv_conc(double x[]) const{
         concs[i] = current_conc;
         x[0] = current_conc;
         current_conc += dx;
-        energies[i] = this->evaluate(x);
+        energies[i] = this->evaluate_vec(x);
     }
     return least_squares_slope(concs, energies, N);
 
@@ -47,14 +34,7 @@ double TwoPhaseLandau::partial_deriv_conc(double x[]) const{
     return value + jump_contrib_deriv(x[0]);
 }
 
-double TwoPhaseLandau::partial_deriv_shape(double conc, const std::vector<double> &shape, unsigned int direction) const{
-    double x[4];
-    x[0] = conc;
-    memcpy(x+1, &shape[0], sizeof(double)*shape.size());
-    return partial_deriv_shape(x, direction);
-}
-
-double TwoPhaseLandau::partial_deriv_shape(double x[], unsigned int direction) const{
+double TwoPhaseLandau::partial_deriv_shape_vec(double x[], unsigned int direction) const{
     return polynomial->deriv(x, direction+1);
 }
 

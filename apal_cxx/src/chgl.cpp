@@ -100,11 +100,11 @@ void CHGL<dim>::update(int nsteps){
             double *phi_raw_ptr = &(phi_real[0]);
 
             // Get partial derivative with respect to concentration
-            real(free_eng_deriv[0]) = this->free_energy->partial_deriv_conc(phi_raw_ptr);
+            real(free_eng_deriv[0]) = this->free_energy->partial_deriv_conc_vec(phi_raw_ptr);
             imag(free_eng_deriv[0]) = 0.0;
 
             for (unsigned int j=1;j<tot_num_fields;j++){
-                real(free_eng_deriv[j]) = this->free_energy->partial_deriv_shape(phi_raw_ptr, j-1);
+                real(free_eng_deriv[j]) = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
                 imag(free_eng_deriv[j]) = 0.0;
 
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
@@ -325,9 +325,9 @@ void CHGL<dim>::save_free_energy_map(const std::string &fname) const{
             x[field] = (*this->grid_ptr)(i)[field];
         }
 
-        free_energy_grid(i)[0] = free_energy->evaluate(x);
-        free_energy_grid(i)[1] = free_energy->partial_deriv_conc(x);
-        free_energy_grid(i)[2] = free_energy->partial_deriv_shape(x, 0);
+        free_energy_grid(i)[0] = free_energy->evaluate_vec(x);
+        free_energy_grid(i)[1] = free_energy->partial_deriv_conc_vec(x);
+        free_energy_grid(i)[2] = free_energy->partial_deriv_shape_vec(x, 0);
     }
 
     free_energy_grid.output(fname.c_str());
@@ -363,7 +363,7 @@ double CHGL<dim>::energy() const{
         // Contribution from free energy
         MMSP::vector<double> phi_real(MMSP::fields(temp_field));
         double *phi_raw_ptr = &(phi_real[0]);
-        integral += this->free_energy->evaluate(phi_raw_ptr);
+        integral += this->free_energy->evaluate_vec(phi_raw_ptr);
 
         // Contribution from gradient terms
         MMSP::vector<int> pos = temp_field.position(i);
