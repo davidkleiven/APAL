@@ -294,23 +294,8 @@ void CHGL<dim>::print_polynomial() const{
 }
 
 template<int dim>
-void CHGL<dim>::set_free_energy(const TwoPhaseLandau &poly){
-    if (!poly.get_regressor()){
-        throw invalid_argument("TwoPhaseLanday has no kernel regressor!");
-    }
-
-    if (!poly.get_regressor()->kernel_is_set()){
-        throw invalid_argument("The Kernel Regressor has no kernel!");
-    }
-
-    if (poly.get_poly_dim() != this->num_fields){
-        stringstream ss;
-        ss << "The polynomial passed has wrong dimension!";
-        ss << "Expected: " << this->num_fields;
-        ss << " Got: " << poly.get_poly_dim();
-        throw invalid_argument(ss.str());
-    }
-
+void CHGL<dim>::set_free_energy(const TwoPhaseLandauBase &poly){
+    poly.in_valid_state();
     free_energy = &poly;
 }
 

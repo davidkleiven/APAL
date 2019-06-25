@@ -1,7 +1,7 @@
 #ifndef CHGL_H
 #define CHGL_H
 #include "phase_field_simulation.hpp"
-#include "two_phase_landau.hpp"
+#include "two_phase_landau_base.hpp"
 #include "fftw_mmsp.hpp"
 
 #ifdef HAS_FFTW
@@ -29,7 +29,7 @@ public:
     virtual ~CHGL();
 
     /** Add a new free energy term to the model */
-    void set_free_energy(const TwoPhaseLandau &poly);
+    void set_free_energy(const TwoPhaseLandauBase &poly);
 
     /** Return an array of the free energy */
     void save_free_energy_map(const std::string &fname) const;
@@ -80,7 +80,7 @@ protected:
     unsigned int update_counter{0};
 
     interface_vec_t interface;
-    const TwoPhaseLandau *free_energy{nullptr};
+    const TwoPhaseLandauBase *free_energy{nullptr};
     MMSP::grid<dim, MMSP::vector<fftw_complex> > *cmplx_grid_ptr{nullptr};
 
     MultidirectionalKhachaturyan khachaturyan;

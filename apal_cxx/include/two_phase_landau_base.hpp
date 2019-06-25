@@ -16,6 +16,9 @@ public:
     /** Partial derivative with respect to the shape variable */
     double partial_deriv_shape(double conc, const std::vector<double> &shape, unsigned int direction) const;
     virtual double partial_deriv_shape_vec(double x[], unsigned int direction) const = 0;
+
+    /** Raise proper error if object is not in a valid state */
+    virtual void in_valid_state() const {};
 protected:
     static void conc_shape2vec(double conc, const std::vector<double> &shape, double vec[]);
 };

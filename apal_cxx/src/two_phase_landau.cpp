@@ -61,3 +61,17 @@ double TwoPhaseLandau::jump_contrib_deriv(double conc) const{
     return 0.0;
     return -disc_jump*0.5*(1 - pow(tanh(x), 2))/step_func_width;
 }
+
+void TwoPhaseLandau::in_valid_state() const{
+    if (!get_regressor()){
+        throw invalid_argument("TwoPhaseLanday has no kernel regressor!");
+    }
+
+    if (!get_regressor()->kernel_is_set()){
+        throw invalid_argument("The Kernel Regressor has no kernel!");
+    }
+
+    if (!polynomial){
+        throw invalid_argument("Polyomial is not set!");
+    }
+}

@@ -32,6 +32,8 @@ class TwoPhaseLandau: public TwoPhaseLandauBase{
 
         /** Return a pointer to the regressor */
         const KernelRegressor* get_regressor() const{return regressor;};
+
+        virtual void in_valid_state() const override;
     private:
         const KernelRegressor *regressor{nullptr};
         const Polynomial *polynomial{nullptr};
