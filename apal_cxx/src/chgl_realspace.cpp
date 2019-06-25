@@ -187,7 +187,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
         #pragma omp parallel for
         #endif
         for (int i=0;i<MMSP::nodes(gr);i++){
-            MMSP::vector<double> &phi = gr(i);
+            MMSP::vector<double> phi = gr(i);
             double *phi_raw_ptr = &(phi[0]);
 
             // Get partial derivative with respect to concentration
