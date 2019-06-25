@@ -1,3 +1,9 @@
+from cython.operator cimport dereference
+
+cdef extern from "polynomial.hpp":
+    cdef cppclass Polynomial:
+        pass
+
 cdef extern from "quadratic_two_phase_poly.hpp":
     cdef cppclass QuadraticTwoPhase:
         QuadraticTwoPhase()
@@ -8,10 +14,14 @@ cdef extern from "quadratic_two_phase_poly.hpp":
 
         double partial_deriv_shape_vec(double x[], unsigned int dir)
 
-        void in_valid_state()
+        void in_valid_state() except+
+
+        void set_poly_phase1(const Polynomial &poly) except+
+
+        void set_poly_phase2(const Polynomial &poly)
 
 
-cdef class PyQuadratocTwoPhasePoly:
+cdef class PyQuadraticTwoPhasePoly:
     cdef QuadraticTwoPhase *thisptr
 
     def __cinit__(self):
@@ -44,4 +54,10 @@ cdef class PyQuadratocTwoPhasePoly:
 
     def in_valid_state(self):
         self.thisptr.in_valid_state()
+
+    def set_poly_phase1(self, PyPolynomial poly):
+        self.thisptr.set_poly_phase1(dereference(poly.thisptr))
+
+    def set_poly_phase2(self, PyPolynomial poly):
+        self.thisptr.set_poly_phase2(dereference(poly.thisptr))
 

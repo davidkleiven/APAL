@@ -14,7 +14,7 @@ void QuadraticTwoPhase::in_valid_state() const{
 }
 
 void QuadraticTwoPhase::set_poly_phase1(const Polynomial &poly){
-    if (!poly.get_dim() != 1){
+    if (poly.get_dim() != 1){
         throw invalid_argument("Polynomial for the first phase can only depend on one variable!");
     }
     phase1 = &poly;
