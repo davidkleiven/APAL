@@ -15,6 +15,7 @@ void SparseMatrix::clear(){
     row.clear();
     col.clear();
     values.clear();
+    index_map.clear();
 }
 
 void SparseMatrix::insert(unsigned int r, unsigned int c, double value){
@@ -22,6 +23,11 @@ void SparseMatrix::insert(unsigned int r, unsigned int c, double value){
     row.push_back(r);
     col.push_back(c);
     values.push_back(value);
+
+    rc_pair_t rowcol;
+    rowcol.first = r;
+    rowcol.second = c;
+    index_map[rowcol] = values.size() - 1;
 
     if (r + 1 < num_rows){
         num_rows = r + 1;
@@ -158,4 +164,22 @@ void SparseMatrix::to_dense(DenseMatrix &mat) const{
     for (unsigned int i=0;i<values.size();i++){
         mat(row[i], col[i]) = values[i];
     }
+}
+
+SparseMatrix& SparseMatrix::operator += (const SparseMatrix &other){
+    for (unsigned int i=0;i<other.row.size();i++){
+        rc_pair_t rowcol;
+        rowcol.first = other.row[i];
+        rowcol.second = other.col[i];
+        
+        if (index_map.find(rowcol) == index_map.end()){
+            this->insert(other.row[i], other.col[i], other.values[i]);
+        }
+        else{
+            unsigned int index = index_map.at(rowcol);
+            this->values[index] += other.values[i];
+        }
+    }
+    this->to_csr();
+    return *this;
 }

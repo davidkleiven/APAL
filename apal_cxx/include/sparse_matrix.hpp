@@ -2,16 +2,20 @@
 #define SPARSE_MATRIX_H
 #include <vector>
 #include <string>
+#include <map>
 
 // Forward-declaration
 class DenseMatrix;
 
+typedef std::pair<unsigned int, unsigned int> rc_pair_t;
 class SparseMatrix{
 public:
     SparseMatrix(){};
 
     void clear();
     void insert(unsigned int row, unsigned int col, double value);
+
+    SparseMatrix& operator += (const SparseMatrix &other);
 
     void dot(const std::vector<double> &vec, std::vector<double> &res) const;
 
@@ -33,6 +37,7 @@ private:
     std::vector<double> values;
     std::vector<unsigned int> row;
     std::vector<unsigned int> col;
+    std::map<rc_pair_t, unsigned int> index_map; // Quick-access to index of pair
 
     // CSR related structures
     std::vector<double> csr_values;
