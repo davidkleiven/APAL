@@ -45,11 +45,6 @@ class TestCHGL(unittest.TestCase):
         # Case 2: Fail because no polynomial is set
         regressor.set_kernel(kernel)
         landau.set_kernel_regressor(regressor)
-        with self.assertRaises(RuntimeError):
-            chgl.set_free_energy(landau)
-        
-        # Case 3: Fail because the polynomial has wrong dimension
-        landau.set_polynomial(poly)
         with self.assertRaises(ValueError):
             chgl.set_free_energy(landau)
 
@@ -63,7 +58,6 @@ class TestCHGL(unittest.TestCase):
             # The only way run should raise a runtime error at this stage is
             # if FFTW is not installed
             self.assertTrue("CHGL requires FFTW!" in str(exc))
-
 
     def test_npy_array(self):
         chgl = self.get_chgl()

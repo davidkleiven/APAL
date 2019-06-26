@@ -10,6 +10,10 @@ cdef extern from *:
     ctypedef int intParameter2 "2"
     ctypedef int intParameter3 "3"
 
+cdef extern from "two_phase_landau_base.hpp":
+    cdef cppclass TwoPhaseLandauBase:
+        pass
+
 cdef class PyCHGLRealSpace:
     cdef CHGLRealSpace[intParameter1] *thisptr1D
     cdef CHGLRealSpace[intParameter2] *thisptr2D
@@ -92,11 +96,20 @@ cdef class PyCHGLRealSpace:
 
     def set_free_energy(self, PyTwoPhaseLandau term):
         if self.dim == 1:
-            self.thisptr1D.set_free_energy(deref(term.thisptr))
+            self.thisptr1D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
         elif self.dim == 2:
-            self.thisptr2D.set_free_energy(deref(term.thisptr))
+            self.thisptr2D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
         elif self.dim == 3:
-            self.thisptr3D.set_free_energy(deref(term.thisptr))
+            self.thisptr3D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
+
+    def set_free_energy_quadratic(self, PyQuadraticTwoPhasePoly term):
+        if self.dim == 1:
+            self.thisptr1D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
+        elif self.dim == 2:
+            self.thisptr2D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
+        elif self.dim == 3:
+            self.thisptr3D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
+
 
     def print_polynomial(self):
         if self.dim == 1:

@@ -4,8 +4,10 @@ import numpy as np
 from apal_cxx import PyCHGLRealSpace
 from apal_cxx import PyTwoPhaseLandau
 from apal_cxx import PyPolynomial
+from apal_cxx import PyPolynomialTerm
 from apal_cxx import PyKernelRegressor
 from apal_cxx import PyGaussianKernel
+from apal_cxx import PyQuadraticTwoPhasePoly
 
 
 class TestCHGLRealSpace(unittest.TestCase):
@@ -78,6 +80,27 @@ class TestCHGLRealSpace(unittest.TestCase):
         chgl.set_free_energy(landau)
 
         chgl.run(5, 1000)
+
+    def test_quadratic_two_phase(self):
+        chgl = self.get_chgl3D()
+        chgl.build3D()
+
+        # Initialize a two phase landau polynomial
+        landau = PyQuadraticTwoPhasePoly()
+
+        # Initlaise 1D polynomial (concentration)
+        poly1 = PyPolynomial(1)
+        poly1.add_term(1.0, PyPolynomialTerm([2]))
+        landau.set_poly_phase1(poly1)
+
+        # Initialize 4D polynomial (concentration, shape1, shape2, shape3)
+        poly2 = PyPolynomial(4)
+        poly2.add_term(2.0, PyPolynomialTerm([1, 2, 0, 0]))
+        landau.set_poly_phase2(poly2)
+        chgl.set_free_energy_quadratic(landau)
+
+        chgl.run(5, 1000)
+
 
     def tearDown(self):
         super(TestCHGLRealSpace, self).tearDown()

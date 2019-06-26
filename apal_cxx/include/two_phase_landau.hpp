@@ -3,8 +3,9 @@
 #include <vector>
 #include "kernel_regressor.hpp"
 #include "polynomial.hpp"
+#include "two_phase_landau_base.hpp"
 
-class TwoPhaseLandau{
+class TwoPhaseLandau: public TwoPhaseLandauBase{
     public:
         TwoPhaseLandau();
 
@@ -21,19 +22,18 @@ class TwoPhaseLandau{
         unsigned int get_poly_dim() const;
 
         /** Evaluate the shape polynomial*/
-        double evaluate(double conc, const std::vector<double> &shape) const;
-        double evaluate(double x[]) const;
+        double evaluate_vec(double x[]) const override;
 
         /** Evaluate the derivative */
-        double partial_deriv_conc(double conc, const std::vector<double> &shape) const;
-        double partial_deriv_conc(double x[]) const;
+        double partial_deriv_conc_vec(double x[]) const override;
 
         /** Partial derivative with respect to the shape variable */
-        double partial_deriv_shape(double conc, const std::vector<double> &shape, unsigned int direction) const;
-        double partial_deriv_shape(double x[], unsigned int direction) const;
+        double partial_deriv_shape_vec(double x[], unsigned int direction) const override;
 
         /** Return a pointer to the regressor */
         const KernelRegressor* get_regressor() const{return regressor;};
+
+        virtual void in_valid_state() const override;
     private:
         const KernelRegressor *regressor{nullptr};
         const Polynomial *polynomial{nullptr};
