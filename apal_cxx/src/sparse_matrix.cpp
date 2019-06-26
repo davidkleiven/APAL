@@ -166,7 +166,7 @@ void SparseMatrix::to_dense(DenseMatrix &mat) const{
     }
 }
 
-SparseMatrix& SparseMatrix::operator += (const SparseMatrix &other){
+SparseMatrix& SparseMatrix::operator+=(const SparseMatrix &other){
     for (unsigned int i=0;i<other.row.size();i++){
         rc_pair_t rowcol;
         rowcol.first = other.row[i];

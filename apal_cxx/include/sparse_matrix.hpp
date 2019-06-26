@@ -15,7 +15,7 @@ public:
     void clear();
     void insert(unsigned int row, unsigned int col, double value);
 
-    SparseMatrix& operator += (const SparseMatrix &other);
+    SparseMatrix& operator +=(const SparseMatrix &other);
 
     void dot(const std::vector<double> &vec, std::vector<double> &res) const;
 

@@ -1,6 +1,8 @@
 import unittest
 from apal_cxx import pytest_biharmonic_matrix
 from apal_cxx import pytest_laplacian_matrix3D
+from apal_cxx import pytest_add_same_element
+from apal_cxx import pytest_add_mixed_element
 from scipy.ndimage.filters import laplace
 from scipy.linalg import toeplitz
 import numpy as np
@@ -57,6 +59,14 @@ class TestBuildMatrices(unittest.TestCase):
         flat_mat.sort()
 
         self.assertTrue(np.allclose(flat_lap3D, flat_mat))
+
+    def test_add_same_element(self):
+        res = pytest_add_same_element()
+        self.assertTrue(np.allclose(res[0], res[1]))
+
+    def test_add_mixed_element(self):
+        res = pytest_add_mixed_element()
+        self.assertTrue(np.allclose(res[0], res[1]))
 
 
 
