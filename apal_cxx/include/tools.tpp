@@ -275,3 +275,29 @@ double sum_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsign
     }
     return value;
 }
+
+template<int dim, class T>
+void diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, MMSP::grid<dim, T> &out){
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
+    for (int node=0;node<MMSP::nodes(grid1);node++){
+        out(node) = grid1(node) - grid2(node);
+    }
+}
+
+template<class T>
+MMSP::vector<T> operator-(const MMSP::vector<T> &v1, const MMSP::vector<T> &v2){
+    MMSP::vector<T> out(v1);
+    for (unsigned int i=0;i<v1.length();i++){
+        out[i] = v1[i] - v2[i];
+    }
+    return out;
+}
+
+template<int dim, class T>
+void store_diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, const std::string &fname){
+    MMSP::grid<dim, T> out(grid1);
+    diff(grid1, grid2, out);
+    out.output(fname.c_str());
+}
