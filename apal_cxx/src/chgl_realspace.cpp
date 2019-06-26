@@ -181,37 +181,41 @@ void CHGLRealSpace<dim>::update(int nsteps){
                 MMSP::print_progress(step, nsteps);
             }
         
-        auto start = chrono::steady_clock::now();
+        if (step%field_deriv_update_freq == 0){
+            auto start = chrono::steady_clock::now();
 
-        #ifndef NO_PHASEFIELD_PARALLEL
-        #pragma omp parallel for
-        #endif
-        for (int i=0;i<MMSP::nodes(gr);i++){
-            MMSP::vector<double> phi = gr(i);
-            double *phi_raw_ptr = &(phi[0]);
+            #ifndef NO_PHASEFIELD_PARALLEL
+            #pragma omp parallel for
+            #endif
+            for (int i=0;i<MMSP::nodes(gr);i++){
+                MMSP::vector<double> phi = gr(i);
+                double *phi_raw_ptr = &(phi[0]);
 
-            // Get partial derivative with respect to concentration
-            deriv_free_eng(i)[0]= this->free_energy->partial_deriv_conc_vec(phi_raw_ptr);
+                // Get partial derivative with respect to concentration
+                deriv_free_eng(i)[0]= this->free_energy->partial_deriv_conc_vec(phi_raw_ptr);
 
-            for (unsigned int j=1;j<phi.length();j++){
-                deriv_free_eng(i)[j] = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
+                for (unsigned int j=1;j<phi.length();j++){
+                    deriv_free_eng(i)[j] = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
+                }
             }
+            auto end = chrono::steady_clock::now();
+            auto diff = end - start;
+            timing["field_preparation"] += chrono::duration<double, milli> (diff).count();
         }
-        auto end = chrono::steady_clock::now();
-        auto diff = end - start;
-        timing["field_preparation"] += chrono::duration<double, milli> (diff).count();
 
-        // Calculate the strain functional derivatives
-        start = chrono::steady_clock::now();
-        calculate_strain_contribution();
-        end = chrono::steady_clock::now();
-        diff = end - start;
-        timing["strain_evaluation"] += chrono::duration<double, milli> (diff).count();
-        //std::cout << min_strain_deriv << " " << max_strain_deriv << std::endl;
+        if (step%strain_deriv_update_freq == 0){
+            // Calculate the strain functional derivatives
+            auto start = chrono::steady_clock::now();
+            calculate_strain_contribution();
+            auto end = chrono::steady_clock::now();
+            auto diff = end - start;
+            timing["strain_evaluation"] += chrono::duration<double, milli> (diff).count();
+            //std::cout << min_strain_deriv << " " << max_strain_deriv << std::endl;
+        }
 
         // Solve each field with the conjugate gradient method
         for (unsigned int field=0;field<MMSP::fields(gr);field++){
-            start = chrono::steady_clock::now();
+            auto start = chrono::steady_clock::now();
             vector<double> rhs(MMSP::nodes(gr));
             vector<double> field_values(MMSP::nodes(gr));
 
@@ -228,8 +232,8 @@ void CHGLRealSpace<dim>::update(int nsteps){
                     rhs[i] = gr(i)[field] - this->dt*this->gl_damping*deriv_free_eng(i)[field];
                 }
             }
-            end = chrono::steady_clock::now();
-            diff = end - start;
+            auto end = chrono::steady_clock::now();
+            auto diff = end - start;
             timing["field_transfer"] += chrono::duration<double, milli> (diff).count();
 
             // Add Cook noise (note this function does not do anything if the 
@@ -523,6 +527,21 @@ void CHGLRealSpace<dim>::save_strain_derivative(const string &fname) const{
     }
 
     real_part.output(fname.c_str());
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::set_strain_update_rate(unsigned int rate){
+    strain_deriv_update_freq = rate;
+    cout << "Performing " << strain_deriv_update_freq << " time steps between everytime ";
+    cout << "strain fields are updated\n";
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::set_field_update_rate(unsigned int rate){
+    field_deriv_update_freq = rate;
+    cout << "Performing " << field_deriv_update_freq << " time steps between everytime ";
+    cout << "the partial derivative of the free energy density with respect to the field ";
+    cout << "variables is updated\n";
 }
 // Explicit instantiations
 template class CHGLRealSpace<1>;

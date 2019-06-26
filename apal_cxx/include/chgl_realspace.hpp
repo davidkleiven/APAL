@@ -13,6 +13,12 @@ public:
 
     virtual ~CHGLRealSpace();
 
+    /** Set how often the field derivatives should be updated */
+    void set_field_update_rate(unsigned int rate);
+
+    /** Set how often the strain fields should be updated */
+    void set_strain_update_rate(unsigned int rate);
+
     /** Build the matrix for CHGL equations */
     void build2D();
 
@@ -26,6 +32,8 @@ public:
     void energy(std::map<std::string, double> &tr_item) const; 
 private:
     unsigned int implicitDir{0};
+    unsigned int field_deriv_update_freq{1};
+    unsigned int strain_deriv_update_freq{1};
     std::array<SparseMatrix, dim+1> matrices;
     bool did_build_matrices{false};
 
