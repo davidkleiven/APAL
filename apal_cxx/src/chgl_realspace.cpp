@@ -301,8 +301,9 @@ void CHGLRealSpace<dim>::update(int nsteps){
     ss.clear();
 
     // Store the strain derivative
-    ss << this->prefix << "_strain_derivatives" << this->update_counter << ".grid";
-    save_strain_derivative(ss.str());
+    stringstream fname_strain;
+    fname_strain << this->prefix << "_strain_derivatives" << this->update_counter << ".grid";
+    save_strain_derivative(fname_strain.str());
 
     map<string, double> energy_values;
     energy(energy_values);
