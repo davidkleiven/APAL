@@ -262,6 +262,13 @@ void CHGLRealSpace<dim>::update(int nsteps){
         if (should_lower_timestep(max_diff)){
             this->set_timestep(this->dt/2.0);// Reduce time step
 
+            #ifdef CHGL_REALSPACE_STORE_DIFF_ON_LOWER_TIMESTEP
+                stringstream ss;
+                ss << "chglrealspace_diff" << step << ".grid";
+                store_diff(gr, gr_cpy, ss.str());
+                cout << "Diff stored in " << ss.str() << endl;
+            #endif
+
             rebuild_matrices();
             //gr_cpy.swap(*this->grid_ptr);
             this->grid_ptr->copy(gr_cpy);

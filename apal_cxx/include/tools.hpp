@@ -141,5 +141,16 @@ void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor[3], Spa
 template<int dim>
 double sum_real(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid, unsigned int field);
 
+/** Calculate the difference between grid1 and grid2 and store the result in out */
+template<int dim, class T>
+void diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, MMSP::grid<dim, T> &out);
+
+template<class T>
+MMSP::vector<T> operator-(const MMSP::vector<T> &v1, const MMSP::vector<T> &v2);
+
+/** Store the difference between two grids */
+template<int dim, class T>
+void store_diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, const std::string &fname);
+
 #include "tools.tpp"
 #endif
