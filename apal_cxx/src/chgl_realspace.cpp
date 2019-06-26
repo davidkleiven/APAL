@@ -294,6 +294,11 @@ void CHGLRealSpace<dim>::update(int nsteps){
         this->quit = true;
     }
 
+    // Output the derivatives at the last point
+    stringstream ss;
+    ss << this->prefix << "_free_energy_derivatives" << this->update_counter << ".grid";
+    deriv_free_eng.output(ss.str().c_str());
+
     map<string, double> energy_values;
     energy(energy_values);
     
