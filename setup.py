@@ -83,7 +83,7 @@ if check_fftw():
     print("Compiling with FFTW")
 
 # Debug options
-define_macros.append(("CHGL_REALSPACE_STORE_DIFF_ON_LOWER_TIMESTEP", 1))
+# define_macros.append(("CHGL_REALSPACE_STORE_DIFF_ON_LOWER_TIMESTEP", 1))
 
 phase_field_mod = Extension("apal_cxx", sources=phasefield_sources,
                             include_dirs=[np.get_include(),
