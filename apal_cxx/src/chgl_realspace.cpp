@@ -298,6 +298,11 @@ void CHGLRealSpace<dim>::update(int nsteps){
     stringstream ss;
     ss << this->prefix << "_free_energy_derivatives" << this->update_counter << ".grid";
     deriv_free_eng.output(ss.str().c_str());
+    ss.clear();
+
+    // Store the strain derivative
+    ss << this->prefix << "_strain_derivatives" << this->update_counter << ".grid";
+    save_strain_derivative(ss.str());
 
     map<string, double> energy_values;
     energy(energy_values);
@@ -505,6 +510,18 @@ void CHGLRealSpace<dim>::rebuild_matrices(){
     default:
         throw invalid_argument("Can only build system matrices for 2 and 3 dimensions!");
     }
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::save_strain_derivative(const string &fname) const{
+    MMSP::grid<dim, MMSP::vector<double> > real_part(*this->strain_deriv, dim);
+
+    for (unsigned int i=0;i<MMSP::nodes(real_part);i++){
+        for (unsigned int d=0;d<dim;d++)
+            real_part(i)[d] = real((*this->strain_deriv)(i)[d]);
+    }
+
+    real_part.output(fname.c_str());
 }
 // Explicit instantiations
 template class CHGLRealSpace<1>;

@@ -53,6 +53,9 @@ private:
 
     /** Rebuild the system matrices */
     void rebuild_matrices();
+
+    /** Write the strain derivative to file */
+    void save_strain_derivative(const std::string &fname) const;
 };
 
 #endif
