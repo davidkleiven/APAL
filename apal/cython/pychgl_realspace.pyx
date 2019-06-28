@@ -180,4 +180,21 @@ cdef class PyCHGLRealSpace:
             self.thisptr2D.add_strain_model(deref(obj.thisptr), field)
         elif self.dim == 3:
             self.thisptr3D.add_strain_model(deref(obj.thisptr), field)
+
+    def set_field_update_rate(self, rate):
+        if self.dim == 1:
+            self.thisptr1D.set_field_update_rate(rate)
+        elif self.dim == 2:
+            self.thisptr2D.set_field_update_rate(rate)
+        elif self.dim == 3:
+            self.thisptr3D.set_field_update_rate(rate)
+        
+
+    def set_strain_update_rate(self, rate):
+        if self.dim == 1:
+            self.thisptr1D.set_strain_update_rate(rate)
+        elif self.dim == 2:
+            self.thisptr2D.set_strain_update_rate(rate)
+        elif self.dim == 3:
+            self.thisptr3D.set_strain_update_rate(rate)
             
