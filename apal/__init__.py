@@ -8,3 +8,4 @@ from apal.landau_polynomial import TwoPhaseLandauPolynomialBase
 from apal.kernel_regressor_two_phase import TwoPhasePolynomialRegressor
 from apal.quadratic_expansion_landau import QuadraticExpansionLandau
 from apal.khachaturyan import Khachaturyan
+from apal.single_precipitate_poly import SinglePrecipitatePoly
