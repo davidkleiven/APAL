@@ -322,6 +322,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
         energy_values["cg_iter" + to_string(i)] = cg_iterations[i];
     }
     
+    log_mean_values(energy_values);
     // Transfer timing results
     energy_values.insert(timing.begin(), timing.end());
     log_tritem(energy_values);
@@ -543,6 +544,19 @@ void CHGLRealSpace<dim>::set_field_update_rate(unsigned int rate){
     cout << "the partial derivative of the free energy density with respect to the field ";
     cout << "variables is updated\n";
 }
+
+template<int dim>
+void CHGLRealSpace<dim>::log_mean_values(std::map<std::string, double> &logvalues) const{
+    std::vector<double> mean;
+    mean_value(*this->grid_ptr, mean);
+
+    for (unsigned int i=0;i<mean.size();i++){
+        stringstream ss;
+        ss << "mean" << i;
+        logvalues[ss.str()] = mean[i];
+    }
+}
+
 // Explicit instantiations
 template class CHGLRealSpace<1>;
 template class CHGLRealSpace<2>;

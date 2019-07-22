@@ -96,6 +96,9 @@ double inf_norm(const std::vector<double> &vec);
 template<int dim>
 double inf_norm_diff(const MMSP::grid<dim, MMSP::vector<double> > &grid1, const MMSP::grid<dim, MMSP::vector<double> > &grid2);
 
+template<int dim>
+void mean_value(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<double> &meanval);
+
 double least_squares_slope(double x[], double y[], unsigned int N);
 
 double real_field(double field_value){return field_value;};
