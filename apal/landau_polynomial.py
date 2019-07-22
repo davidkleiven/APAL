@@ -425,18 +425,36 @@ class TwoPhaseLandauPolynomialBase(object):
 
             cost = mse
 
-            for cnst in constraints:
-                cost += cnst(self)
+            # for cnst in constraints:
+            #     cost += cnst(self)
             return cost
 
         # Last term has to be positive
         num_coeff = len(self.coeff_shape) - 2
         x0 = np.zeros(num_coeff)
-        A = np.zeros((1, num_coeff))
-        ub = np.zeros(1)
-        lb = np.zeros(1)
+        A = np.zeros((4, num_coeff))
+        ub = np.zeros(4)
+        lb = np.zeros(4)
         ub[0] = np.inf
         A[0, -1] = 1.0
+
+        # Monotonical increasing cross terms
+        A[1, 0] = 1.0
+        A[1, 1] = 3.0
+        lb[1] = 0.0
+        ub[1] = np.inf
+
+        # Ensure function is monotonically increasing along the line
+        # eta1 = eta2
+        A[2, 0] = 1.0
+        lb[2] = np.abs(self.coeff_shape[0])
+        ub[2] = np.inf
+
+        # Ensure function is monotonically increasing along the line
+        # eta1 = eta2
+        A[3, 1] = 1.0
+        lb[3] = -np.abs(self.coeff_shape[0])
+        ub[3] = np.inf
 
         cnst = LinearConstraint(A, lb, ub)
         cb = MinimizationProgressCallback(10, constraints=constraints)
