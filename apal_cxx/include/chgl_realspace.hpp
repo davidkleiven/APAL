@@ -64,6 +64,9 @@ private:
 
     /** Write the strain derivative to file */
     void save_strain_derivative(const std::string &fname) const;
+
+    /** Adds the mean value to the logged values */
+    void log_mean_values(std::map<std::string, double> &logvalues) const;
 };
 
 #endif
