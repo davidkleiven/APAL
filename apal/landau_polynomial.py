@@ -489,7 +489,7 @@ class TwoPhaseLandauPolynomialBase(object):
         scanned[scanned > minval] = minval
         return np.mean((scanned-minval)**2)
 
-    def gradient_coefficient(self, alpha, gamma, conc, surf_form):
+    def gradient_coefficient(self, alpha, gamma, conc, surf_form, gamma0=None):
         from scipy.optimize import newton
         deriv = np.array(self.equil_shape_order_derivative(conc))
 
@@ -514,7 +514,9 @@ class TwoPhaseLandauPolynomialBase(object):
             array_fprime[0] = 2*x[0]*fprime
             return array_fprime
 
-        root, infodict, ier, mesg = fsolve(eq, np.sqrt(alpha), fprime=jac, full_output=True)
+        if gamma0 is None:
+            gamma0 = np.sqrt(alpha)
+        root, infodict, ier, mesg = fsolve(eq, gamma0, fprime=jac, full_output=True)
         beta = np.sqrt(root)
         print("Target surface tension: {}. Difference: {}".format(gamma, infodict["fvec"]))
         return beta
