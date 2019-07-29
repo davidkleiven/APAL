@@ -316,3 +316,18 @@ void mean_value(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<
         }        
     }
 }
+
+template<int dim>
+void mean_value_sq(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<double> &mean){
+    mean.clear();
+    for (unsigned int i=0;i<MMSP::fields(grid);i++){
+        mean.push_back(0.0);
+    }
+
+    const unsigned int N = MMSP::nodes(grid);
+    for (int node=0;node<N;node++){
+        for (unsigned int field=0;field<MMSP::fields(grid);field++){
+            mean[field] += pow(grid(node)[field], 2)/N;
+        }        
+    }
+}
