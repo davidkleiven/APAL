@@ -51,6 +51,8 @@ cdef extern from "chgl.hpp":
 
         void add_strain_model(Khachaturyan model, int field)
 
-        void set_field_update_rate(unsigned int rate);
+        void set_field_update_rate(unsigned int rate)
 
-        void set_strain_update_rate(unsigned int rate);
+        void set_strain_update_rate(unsigned int rate)
+
+        void conserve_volume(unsigned int field)
