@@ -561,6 +561,16 @@ void CHGLRealSpace<dim>::log_mean_values(std::map<std::string, double> &logvalue
         ss << "mean" << i;
         logvalues[ss.str()] = mean[i];
     }
+
+    // Log the mean squared for the fields where the value of the
+    // squared value should be conserved
+    std::vector<double> mean_sq;
+    mean_value_sq(*this->grid_ptr, mean_sq);
+    for (auto field : conserved_gl_fields){
+        stringstream ss;
+        ss << "mean_sq" << field;
+        logvalues[ss.str()] = mean_sq[field];
+    }
 }
 
 template<int dim>
@@ -573,9 +583,12 @@ double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMS
     double integral_deriv = 0.0;
     double surf_integral = 0.0;
     double order_param_integral = 0.0;
+    double strain_deriv_integral = 0.0;
+
+    bool has_strain = this->khachaturyan.num_models() > 0;
 
     #ifndef NO_PHASEFIELD_PARALLEL
-    #pragma omp parallel for reduction(+ : integral_deriv) reduction(+ : surf_integral) reduction(+ : order_param_integral)
+    #pragma omp parallel for reduction(+ : integral_deriv, surf_integral, order_param_integral, strain_deriv_integral)
     #endif
     for (unsigned int node=0;node<MMSP::nodes(deriv);node++) {
         integral_deriv += deriv(node)[field];
@@ -587,8 +600,12 @@ double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMS
             surf_integral += this->interface[field][dir]*pow(grad[dir], 2);
         }
         order_param_integral += (*this->grid_ptr)(node)[field];
+
+        if (has_strain){
+            strain_deriv_integral += real((*strain_deriv)(node)[field]);
+        }
     }
-    return -(integral_deriv - surf_integral)/(2*order_param_integral);
+    return -(integral_deriv + strain_deriv_integral - surf_integral)/(2*order_param_integral);
 }
 
 template<int dim>
