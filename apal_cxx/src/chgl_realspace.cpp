@@ -242,6 +242,12 @@ void CHGLRealSpace<dim>::update(int nsteps){
 
             if (field > 0){
                 add_strain_contribution(rhs, field);
+
+                if (conserved_gl_fields.find(field) != conserved_gl_fields.end()){
+                    // This GL field should be conserved
+                    double lagrange = get_lagrange_multiplier(field, deriv_free_eng);
+                    add_volume_conservering_contribution(rhs, lagrange, field);
+                }
             }
 
             // Solve with CG
@@ -554,6 +560,79 @@ void CHGLRealSpace<dim>::log_mean_values(std::map<std::string, double> &logvalue
         stringstream ss;
         ss << "mean" << i;
         logvalues[ss.str()] = mean[i];
+    }
+
+    // Log the mean squared for the fields where the value of the
+    // squared value should be conserved
+    std::vector<double> mean_sq;
+    mean_value_sq(*this->grid_ptr, mean_sq);
+    for (auto field : conserved_gl_fields){
+        stringstream ss;
+        ss << "mean_sq" << field;
+        logvalues[ss.str()] = mean_sq[field];
+    }
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::conserve_volume(unsigned int gl_field){
+    conserved_gl_fields.insert(gl_field);
+}
+
+template<int dim>
+double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMSP::grid<dim, MMSP::vector<double> > &deriv) const{
+    double integral_deriv = 0.0;
+    double surf_integral = 0.0;
+    double order_param_integral = 0.0;
+    double strain_deriv_integral = 0.0;
+
+    double nmax = this->khachaturyan.get_max_order_param();
+
+    bool has_strain = this->khachaturyan.num_models() > 0;
+
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for reduction(+ : integral_deriv, surf_integral, order_param_integral, strain_deriv_integral)
+    #endif
+    for (unsigned int node=0;node<MMSP::nodes(deriv);node++) {
+        integral_deriv += deriv(node)[field];
+
+        MMSP::vector<int> pos = this->grid_ptr->position(node);
+        MMSP::vector<double> grad = MMSP::gradient(*this->grid_ptr, pos, field);
+
+        for (unsigned int dir=0;dir<dim;dir++){
+            surf_integral += 2*this->interface[field-1][dir]*hessian_diag(*this->grid_ptr, pos, field, dir);
+        }
+
+        double n =  (*this->grid_ptr)(node)[field];
+
+        // Derivative of the interpolating polymial 3*x^2 - 2*x^3
+        double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+        if ((n < 0.0) || (n > nmax)){
+            value = 0.0;
+        }
+        order_param_integral += value; //3*pow(n/nmax, 2) - 2*pow(n/nmax, 3);
+
+        if (has_strain){
+            strain_deriv_integral += real((*strain_deriv)(node)[field]);
+        }
+    }
+    return -(integral_deriv + strain_deriv_integral - surf_integral)/(2*order_param_integral);
+}
+
+template<int dim>
+void CHGLRealSpace<dim>::add_volume_conservering_contribution(std::vector<double> &rhs, double lagrange, unsigned int field) const{
+    double nmax = this->khachaturyan.get_max_order_param();
+    #ifndef NO_PHASEFIELD_PARALLEL
+    #pragma omp parallel for
+    #endif
+    for (unsigned int i=0;i<rhs.size();i++){
+        double n = (*this->grid_ptr)(i)[field];
+
+        // Derivative of the interpolating polymial 3*x^2 - 2*x^3
+        double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+        if ((n < 0.0) || (n > nmax)){
+            value = 0.0;
+        }
+        rhs[i] -= 2*this->dt*this->gl_damping*value*lagrange;
     }
 }
 

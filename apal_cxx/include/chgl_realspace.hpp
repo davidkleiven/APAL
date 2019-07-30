@@ -3,6 +3,7 @@
 #include "chgl.hpp"
 #include "sparse_matrix.hpp"
 #include <array>
+#include <set>
 
 template<int dim>
 class CHGLRealSpace: public CHGL<dim>{
@@ -29,7 +30,10 @@ public:
     virtual void update(int nsteps) override;
 
     /** Calculate the energy of the system */
-    void energy(std::map<std::string, double> &tr_item) const; 
+    void energy(std::map<std::string, double> &tr_item) const;
+
+    /** Conserve volume of the order parameter squared */
+    void conserve_volume(unsigned int gl_field);
 private:
     unsigned int implicitDir{0};
     unsigned int field_deriv_update_freq{1};
@@ -41,6 +45,7 @@ private:
     double max_strain_deriv{0.0};
 
     MMSP::vector<int> & wrap(MMSP::vector<int> &pos) const;
+    std::set<unsigned int> conserved_gl_fields;
 
     unsigned int node_index(MMSP::vector<int> &pos) const;
 
@@ -67,6 +72,12 @@ private:
 
     /** Adds the mean value to the logged values */
     void log_mean_values(std::map<std::string, double> &logvalues) const;
+
+    /** Get the lagrange multiplier */
+    double get_lagrange_multiplier(unsigned int field, const MMSP::grid<dim, MMSP::vector<double> >&deriv_free) const;
+
+    /** Add right hand side contribution from volume constraint */
+    void add_volume_conservering_contribution(std::vector<double> &rhs, double lagrange, unsigned int field) const;
 };
 
 #endif

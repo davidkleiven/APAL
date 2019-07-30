@@ -316,3 +316,30 @@ void mean_value(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<
         }        
     }
 }
+
+template<int dim>
+void mean_value_sq(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<double> &mean){
+    mean.clear();
+    for (unsigned int i=0;i<MMSP::fields(grid);i++){
+        mean.push_back(0.0);
+    }
+
+    const unsigned int N = MMSP::nodes(grid);
+    for (int node=0;node<N;node++){
+        for (unsigned int field=0;field<MMSP::fields(grid);field++){
+            mean[field] += pow(grid(node)[field], 2)/N;
+        }        
+    }
+}
+
+template<int dim, class T>
+double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector<int> &pos, unsigned int field, unsigned int i){
+    unsigned int L = xlength(grid1);
+    double center = grid1(pos)[field];
+    int pos_old = pos[i];
+    pos[i] = pos_old + 1;
+    double center_pluss = grid1(wrap(pos, L))[field];
+    pos[i] = pos_old - 1;
+    double center_minus = grid1(wrap(pos, L))[field];
+    return center_pluss - 2*center + center_minus;
+}

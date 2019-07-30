@@ -40,6 +40,8 @@ class MultidirectionalKhachaturyan{
         /** Calculate the volume of the auxillary fields */
         template<int dim, class T>
         double volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const;
+
+        double get_max_order_param() const{return max_order_param;};
     private:
         FFTW *fft{nullptr};
         std::map<unsigned int, Khachaturyan> strain_models;

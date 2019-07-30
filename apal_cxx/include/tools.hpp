@@ -99,6 +99,9 @@ double inf_norm_diff(const MMSP::grid<dim, MMSP::vector<double> > &grid1, const 
 template<int dim>
 void mean_value(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<double> &meanval);
 
+template<int dim>
+void mean_value_sq(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vector<double> &meanval_sq);
+
 double least_squares_slope(double x[], double y[], unsigned int N);
 
 double real_field(double field_value){return field_value;};
@@ -154,6 +157,9 @@ MMSP::vector<T> operator-(const MMSP::vector<T> &v1, const MMSP::vector<T> &v2);
 /** Store the difference between two grids */
 template<int dim, class T>
 void store_diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, const std::string &fname);
+
+template<int dim, class T>
+double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector<int> &pos, unsigned int field, unsigned int i);
 
 #include "tools.tpp"
 #endif
