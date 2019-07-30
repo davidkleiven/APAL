@@ -158,5 +158,8 @@ MMSP::vector<T> operator-(const MMSP::vector<T> &v1, const MMSP::vector<T> &v2);
 template<int dim, class T>
 void store_diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2, const std::string &fname);
 
+template<int dim, class T>
+double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector<int> &pos, unsigned int field, unsigned int i);
+
 #include "tools.tpp"
 #endif

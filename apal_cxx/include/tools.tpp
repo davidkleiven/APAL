@@ -331,3 +331,15 @@ void mean_value_sq(const MMSP::grid<dim, MMSP::vector<double> > &grid, std::vect
         }        
     }
 }
+
+template<int dim, class T>
+double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector<int> &pos, unsigned int field, unsigned int i){
+    unsigned int L = xlength(grid1);
+    double center = grid1(pos)[field];
+    int pos_old = pos[i];
+    pos[i] = pos_old + 1;
+    double center_pluss = grid1(wrap(pos, L))[field];
+    pos[i] = pos_old - 1;
+    double center_minus = grid1(wrap(pos, L))[field];
+    return center_pluss - 2*center + center_minus;
+}

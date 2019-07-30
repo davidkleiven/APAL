@@ -585,6 +585,8 @@ double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMS
     double order_param_integral = 0.0;
     double strain_deriv_integral = 0.0;
 
+    double nmax = this->khachaturyan.get_max_order_param();
+
     bool has_strain = this->khachaturyan.num_models() > 0;
 
     #ifndef NO_PHASEFIELD_PARALLEL
@@ -597,9 +599,17 @@ double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMS
         MMSP::vector<double> grad = MMSP::gradient(*this->grid_ptr, pos, field);
 
         for (unsigned int dir=0;dir<dim;dir++){
-            surf_integral += this->interface[field][dir]*pow(grad[dir], 2);
+            surf_integral += 2*this->interface[field-1][dir]*hessian_diag(*this->grid_ptr, pos, field, dir);
         }
-        order_param_integral += (*this->grid_ptr)(node)[field];
+
+        double n =  (*this->grid_ptr)(node)[field];
+
+        // Derivative of the interpolating polymial 3*x^2 - 2*x^3
+        double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+        if ((n < 0.0) || (n > nmax)){
+            value = 0.0;
+        }
+        order_param_integral += value; //3*pow(n/nmax, 2) - 2*pow(n/nmax, 3);
 
         if (has_strain){
             strain_deriv_integral += real((*strain_deriv)(node)[field]);
@@ -610,11 +620,19 @@ double CHGLRealSpace<dim>::get_lagrange_multiplier(unsigned int field, const MMS
 
 template<int dim>
 void CHGLRealSpace<dim>::add_volume_conservering_contribution(std::vector<double> &rhs, double lagrange, unsigned int field) const{
+    double nmax = this->khachaturyan.get_max_order_param();
     #ifndef NO_PHASEFIELD_PARALLEL
     #pragma omp parallel for
     #endif
     for (unsigned int i=0;i<rhs.size();i++){
-        rhs[i] -= 2*this->dt*this->gl_damping*(*this->grid_ptr)(i)[field];
+        double n = (*this->grid_ptr)(i)[field];
+
+        // Derivative of the interpolating polymial 3*x^2 - 2*x^3
+        double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+        if ((n < 0.0) || (n > nmax)){
+            value = 0.0;
+        }
+        rhs[i] -= 2*this->dt*this->gl_damping*value*lagrange;
     }
 }
 
