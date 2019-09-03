@@ -130,7 +130,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
             iter->second.effective_stress(eff_stresses[iter->first]);
             b_tensor_indx[iter->first] = counter++;
         }
-
+        
         // Calculate the inner product between the effective stress and misfit strain
         mat3x3 misfit_energy;
         for (unsigned int field1=0;field1 < shape_fields.size();field1++)
@@ -203,14 +203,11 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
             for (unsigned int field1=0;field1<shape_fields.size();field1++){
                 int indx = b_tensor_indx[field1];
                 int field_indx1 = shape_fields[field1];
-                real(temp_grid(node)[field_indx1]) = B_tensor[indx][indx]*real(grid_out(node)[field_indx1]);
-                real(temp_grid2(node)[field_indx1]) = misfit_energy[indx][indx]*real(shape_squared(node)[field_indx1]);
-                imag(temp_grid(node)[field_indx1]) = B_tensor[indx][indx]*imag(grid_out(node)[field_indx1]);
-                imag(temp_grid2(node)[field_indx1]) = misfit_energy[indx][indx]*imag(shape_squared(node)[field_indx1]);
+                real(temp_grid(node)[field_indx1]) = 0.0;
+                real(temp_grid2(node)[field_indx1]) = 0.0;
+                imag(temp_grid(node)[field_indx1]) = 0.0;
+                imag(temp_grid2(node)[field_indx1]) = 0.0;
                 for (unsigned int field2=0;field2<shape_fields.size();field2++){
-                    if (field2 == field1){
-                        continue;
-                    }
 
                     int indx2 = b_tensor_indx[field2];
                     int field_indx2 = shape_fields[field2];
