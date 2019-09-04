@@ -530,7 +530,7 @@ void CHGLRealSpace<dim>::save_strain_derivative(const string &fname) const{
 
     for (unsigned int i=0;i<MMSP::nodes(real_part);i++){
         for (unsigned int d=0;d<dim;d++)
-            real_part(i)[d] = real((*this->strain_deriv)(i)[d]);
+            real_part(i)[d] = real((*this->strain_deriv)(i)[d+1]);
     }
 
     real_part.output(fname.c_str());
