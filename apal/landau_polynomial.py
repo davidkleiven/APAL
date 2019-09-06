@@ -492,6 +492,13 @@ class TwoPhaseLandauPolynomialBase(object):
     def gradient_coefficient(self, alpha, gamma, conc, surf_form, gamma0=None):
         from scipy.optimize import newton
         deriv = np.array(self.equil_shape_order_derivative(conc))
+        n_eq = np.array(self.equil_shape_order(conc))
+        energy_at_zero = self.evaluate(conc, shape=np.zeros_like(conc))
+        energy_at_n_eq = np.array([self.evaluate(c, shape=[n, 0, 0]) for c, n in zip(list(conc), list(n_eq))])
+        n_eq_active = np.zeros(len(conc), dtype=np.uint8)
+        n_eq_active[energy_at_n_eq<energy_at_zero] = 1
+        n_eq_active[n_eq<0.1] = 0
+
 
         # The derivative is infinite at the transition. Remove unrealistic high contributions
         deriv[deriv>100*np.median(deriv)] = 0.0
@@ -499,12 +506,14 @@ class TwoPhaseLandauPolynomialBase(object):
         def eq(x):
             beta = x[0]**2  # Avoid negative values inside square root
             integrand = np.sqrt(surf_form)*np.sqrt(alpha + beta*deriv**2)
+            integrand[n_eq_active==0] = 0.0
             interface_energy = 2*np.trapz(integrand, x=conc)
             return interface_energy - gamma
 
         def jac(x):
             beta = x[0]**2  # Avoid negative values inside square root
             integrand = 0.5*np.sqrt(surf_form)/np.sqrt(alpha + beta*deriv**2)
+            integrand[n_eq_active==0] = 0.0
             integrand *= deriv**2
             fprime = 2*np.trapz(integrand, x=conc)
             array_fprime = np.zeros_like(x)
