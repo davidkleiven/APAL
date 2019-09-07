@@ -150,24 +150,6 @@ void CHGL<dim>::update(int nsteps){
             }
         }
 
-        if (use_filter){
-            #ifndef NO_PHASEFIELD_PARALLEL
-            #pragma omp parallel for
-            #endif
-            for (int i=0;i<MMSP::nodes(ft_fields);i++){
-                MMSP::vector<int> pos = ft_fields.position(i);
-                MMSP::vector<double> k_vec(pos.length());
-                k_vector(pos, k_vec, this->L);
-                double k = norm(k_vec);
-
-                for (int field=0;field<MMSP::fields(ft_fields);field++){
-                    double w = gaussian_filter_weight(k);
-                    real(ft_fields(i)[field]) *= w;
-                    imag(ft_fields(i)[field]) *= w;
-                }
-            }
-        }
-
         // save_complex_field("data/conc_ft.csv", ft_fields, 0);
         // exit(1);
 
@@ -179,17 +161,21 @@ void CHGL<dim>::update(int nsteps){
     double new_energy = energy();
     bool did_update = false;
 
-    if ((new_energy > old_energy) && adaptive_dt){
-        // We don't transfer the solution
-        set_timestep(dt/2.0);
-        cout << "Timestep refined. New dt = " << dt;
-    }
-    else{
-        // Transfer to parents grid
+    // Transfer to parents grid
         old_energy = new_energy;
         to_parent_grid();
-        did_update = true;
-    }
+
+    // if ((new_energy > old_energy) && adaptive_dt){
+    //     // We don't transfer the solution
+    //     set_timestep(dt/2.0);
+    //     cout << "Timestep refined. New dt = " << dt;
+    // }
+    // else{
+    //     // Transfer to parents grid
+    //     old_energy = new_energy;
+    //     to_parent_grid();
+    //     did_update = true;
+    // }
 
     update_counter += 1;
 
