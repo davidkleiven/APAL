@@ -3,8 +3,8 @@
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 
-cdef extern from "two_phase_landau.hpp":
-    cdef cppclass TwoPhaseLandau:
+cdef extern from "two_phase_landau_base.hpp":
+    cdef cppclass TwoPhaseLandauBase:
         pass
 
 cdef extern from "chgl.hpp":
@@ -25,7 +25,7 @@ cdef extern from "chgl.hpp":
 
         object to_npy_array() except +
 
-        void set_free_energy(TwoPhaseLandau *polyter) except+
+        void set_free_energy(TwoPhaseLandauBase *polyter) except+
 
         void print_polynomial()
 
