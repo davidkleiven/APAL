@@ -173,42 +173,6 @@ void CHGL<dim>::update(int nsteps){
 
         // Inverse Fourier transform --> output into gr
         fft->execute(ft_fields, gr, FFTW_BACKWARD, all_fields);
-
-        //  MMSP::vector<double> lapl_phi = MMSP::laplacian(gr, i);
-        //  MMSP::vector<double> free_eng_deriv(phi.length());
-        //     // Update the first term (Cahn-Hilliard term)
-        //     temp(i) = free_eng_deriv;
-		// 	temp(i)[0] -= 2.0*alpha*lapl_phi[0];
-
-        //     // Update the Ginzburg-Landau terms
-        //     for (unsigned int dir=0;dir<dim;dir++){
-        //         MMSP::vector<double> lapl_dir = partial_double_derivative(gr, i, dir);
-        //         for (unsigned int gl_eq=0;gl_eq<phi.length()-1;gl_eq++)
-        //         {
-        //             temp(i)[gl_eq+1] -= 2.0*interface[gl_eq][dir]*lapl_dir[gl_eq+1];
-        //         }
-        //     }
-		// }
-
-		// // MMSP::ghostswap(temp);
-        // #ifndef NO_PHASEFIELD_PARALLEL
-        // #pragma omp parallel for
-        // #endif
-		// for (int i=0;i<MMSP::nodes(gr);i++){
-        //     // Evaluate the Laplacian for the first field
-		// 	double lapl = MMSP::laplacian(temp, i, 0);
-		// 	double change = M * lapl;
-
-        //     // Update according to Cahn-Hilliard
-		// 	new_gr(i)[0] = gr(i)[0] + dt*change;
-
-        //     // Update the Ginzburg-Landau equations
-        //     for (unsigned int gl_eq=0;gl_eq<this->num_fields-1;gl_eq++){
-        //         new_gr(i)[gl_eq+1] = gr(i)[gl_eq+1] - gl_damping*temp(i)[gl_eq+1];
-        //     }
-		//}
-		//MMSP::swap(gr, new_gr);
-		//MMSP::ghostswap(gr);
 	}
 
 
