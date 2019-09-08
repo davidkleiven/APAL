@@ -36,3 +36,5 @@ cdef extern from "chgl.hpp":
         void use_adaptive_stepping(double min_dt, int increase_dt_every, double low_en_cut)
 
         void set_filter(double width)
+
+        void set_raised_cosine_filter(double omega_cut, double roll_off)

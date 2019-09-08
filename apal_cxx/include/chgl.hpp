@@ -68,6 +68,9 @@ public:
 
     /** Set a filter to remove high frequency components */
     void set_filter(const FourierDomainFilter &filter){ft_filter = &filter;};
+
+    /** Set a raised cosine filter */
+    void set_raised_cosine_filter(double omega_cut, double roll_off);
 protected:
     double M;
     double alpha;
@@ -84,6 +87,7 @@ protected:
     double lower_energy_cut{0.0};
     unsigned int update_counter{0};
     const FourierDomainFilter* ft_filter{nullptr};
+    bool own_ft_filter_ptr{false};
 
     interface_vec_t interface;
     const TwoPhaseLandauBase *free_energy{nullptr};

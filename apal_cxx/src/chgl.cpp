@@ -2,6 +2,7 @@
 #include "tools.hpp"
 #include "chc_noise.hpp"
 #include "gaussian_white_noise.hpp"
+#include "raised_cosine.hpp"
 #include <stdexcept>
 #include <sstream>
 #include <omp.h>
@@ -39,6 +40,10 @@ CHGL<dim>::~CHGL(){
         delete cook_noise[i];
     }
     cook_noise.clear();
+
+    if (own_ft_filter_ptr){
+        delete ft_filter;
+    }
 }
 
 template<int dim>
@@ -394,6 +399,14 @@ void CHGL<dim>::save_noise_realization(const string &fname, unsigned int field) 
     cook_noise[field]->create(noise);
     //cook_noise[field]->noise2grid(fname, noise);
 }
+
+
+template<int dim>
+void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
+    ft_filter = new RaisedCosine(omega_cut, roll_off);
+    own_ft_filter_ptr = true;
+}
+
 // Explicit instantiations
 template class CHGL<1>;
 template class CHGL<2>;
