@@ -106,7 +106,9 @@ void CHGL<dim>::update(int nsteps){
             for (unsigned int j=1;j<tot_num_fields;j++){
                 real(free_eng_deriv[j]) = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
                 imag(free_eng_deriv[j]) = 0.0;
+            }
 
+            for (unsigned int j=0;j<tot_num_fields;j++){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
             }
@@ -162,8 +164,8 @@ void CHGL<dim>::update(int nsteps){
     bool did_update = false;
 
     // Transfer to parents grid
-        old_energy = new_energy;
-        to_parent_grid();
+    old_energy = new_energy;
+    to_parent_grid();
 
     // if ((new_energy > old_energy) && adaptive_dt){
     //     // We don't transfer the solution
