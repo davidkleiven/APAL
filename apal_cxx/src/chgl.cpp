@@ -155,6 +155,10 @@ void CHGL<dim>::update(int nsteps){
         // save_complex_field("data/conc_ft.csv", ft_fields, 0);
         // exit(1);
 
+        if (ft_filter != nullptr){
+            ft_filter->apply(ft_fields);
+        }
+
         // Inverse Fourier transform --> output into gr
         fft->execute(ft_fields, gr, FFTW_BACKWARD, all_fields);
 	}

@@ -10,7 +10,8 @@ public:
     virtual ~FourierDomainFilter(){};
 
     /** Apply method */
-    virtual void apply(MMSP::grid<2, MMSP::vector<fftw_complex> > &grid) const = 0;
-    virtual void apply(MMSP::grid<3, MMSP::vector<fftw_complex> > &grid) const = 0;
+    virtual void apply(MMSP::grid<1, MMSP::vector<fftw_complex> > &grid) const{};
+    virtual void apply(MMSP::grid<2, MMSP::vector<fftw_complex> > &grid) const{};
+    virtual void apply(MMSP::grid<3, MMSP::vector<fftw_complex> > &grid) const{};
 };
 #endif
