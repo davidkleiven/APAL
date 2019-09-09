@@ -33,10 +33,9 @@ void RaisedCosine::apply_generic(MMSP::grid<dim, MMSP::vector<fftw_complex> > &g
         MMSP::vector<double> k_vec(pos.length());
         k_vector(pos, k_vec, L);
 
-        double filter_value = 1.0;
-        for (unsigned int comp=0;comp<dim;comp++){
-            filter_value *= evaluate(k_vec[comp]);
-        }
+        double k = norm(k_vec);
+
+        double filter_value = evaluate(k);
 
         // Multiply all fields with the filter value
         for (unsigned int field=0;field<MMSP::fields(gr);field++){
