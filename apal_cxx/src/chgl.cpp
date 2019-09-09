@@ -138,9 +138,14 @@ void CHGL<dim>::update(int nsteps){
             double k = norm(k_vec);
 
             // Update Cahn-Hilliard term
-            real(ft_fields(i)[0]) = (real(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + real(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+            // real(ft_fields(i)[0]) = (real(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + real(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
 
-            imag(ft_fields(i)[0]) = (imag(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + imag(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+            // imag(ft_fields(i)[0]) = (imag(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + imag(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+
+            double interf_factor = 2*M*dt*alpha*pow(k, 4);
+            double factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+            real(ft_fields(i)[0]) = real(ft_fields(i)[0])*factor - real(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
+            imag(ft_fields(i)[0]) = imag(ft_fields(i)[0])*factor - imag(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
 
             // Update the GL equations
             for (unsigned int field=1;field<MMSP::fields(gr);field++){
@@ -149,11 +154,17 @@ void CHGL<dim>::update(int nsteps){
                     interface_term += interface[field-1][dir]*pow(k_vec[dir], 2);
                 }
 
-                real(ft_fields(i)[field]) = (real(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - real(gr(i)[field])*gl_damping*dt) / \
-                    (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+                // real(ft_fields(i)[field]) = (real(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - real(gr(i)[field])*gl_damping*dt) / \
+                //     (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
 
-                imag(ft_fields(i)[field]) = (imag(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - imag(gr(i)[field])*gl_damping*dt) / \
-                    (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+                // imag(ft_fields(i)[field]) = (imag(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - imag(gr(i)[field])*gl_damping*dt) / \
+                //     (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+
+                interf_factor = 2*gl_damping*dt*interface_term;
+                factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+
+                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
             }
         }
 
