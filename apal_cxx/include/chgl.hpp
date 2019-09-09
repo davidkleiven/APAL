@@ -19,6 +19,8 @@
 
 typedef std::vector<std::vector<double> > interface_vec_t;
 
+class FourierDomainFilter;
+
 template<int dim>
 class CHGL: public PhaseFieldSimulation<dim>{
 public:
@@ -63,6 +65,12 @@ public:
 
     /** Calculate the energy of the system */
     virtual double energy() const;
+
+    /** Set a filter to remove high frequency components */
+    void set_filter(const FourierDomainFilter &filter){ft_filter = &filter;};
+
+    /** Set a raised cosine filter */
+    void set_raised_cosine_filter(double omega_cut, double roll_off);
 protected:
     double M;
     double alpha;
@@ -78,6 +86,8 @@ protected:
     unsigned int increase_dt{100000};
     double lower_energy_cut{0.0};
     unsigned int update_counter{0};
+    const FourierDomainFilter* ft_filter{nullptr};
+    bool own_ft_filter_ptr{false};
 
     interface_vec_t interface;
     const TwoPhaseLandauBase *free_energy{nullptr};

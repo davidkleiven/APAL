@@ -2,6 +2,7 @@
 #include "tools.hpp"
 #include "chc_noise.hpp"
 #include "gaussian_white_noise.hpp"
+#include "raised_cosine.hpp"
 #include <stdexcept>
 #include <sstream>
 #include <omp.h>
@@ -39,6 +40,10 @@ CHGL<dim>::~CHGL(){
         delete cook_noise[i];
     }
     cook_noise.clear();
+
+    if (own_ft_filter_ptr){
+        delete ft_filter;
+    }
 }
 
 template<int dim>
@@ -133,9 +138,14 @@ void CHGL<dim>::update(int nsteps){
             double k = norm(k_vec);
 
             // Update Cahn-Hilliard term
-            real(ft_fields(i)[0]) = (real(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + real(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+            // real(ft_fields(i)[0]) = (real(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + real(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
 
-            imag(ft_fields(i)[0]) = (imag(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + imag(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+            // imag(ft_fields(i)[0]) = (imag(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + imag(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
+
+            double interf_factor = 2*M*dt*alpha*pow(k, 4);
+            double factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+            real(ft_fields(i)[0]) = real(ft_fields(i)[0])*factor - real(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
+            imag(ft_fields(i)[0]) = imag(ft_fields(i)[0])*factor - imag(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
 
             // Update the GL equations
             for (unsigned int field=1;field<MMSP::fields(gr);field++){
@@ -144,16 +154,26 @@ void CHGL<dim>::update(int nsteps){
                     interface_term += interface[field-1][dir]*pow(k_vec[dir], 2);
                 }
 
-                real(ft_fields(i)[field]) = (real(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - real(gr(i)[field])*gl_damping*dt) / \
-                    (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+                // real(ft_fields(i)[field]) = (real(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - real(gr(i)[field])*gl_damping*dt) / \
+                //     (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
 
-                imag(ft_fields(i)[field]) = (imag(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - imag(gr(i)[field])*gl_damping*dt) / \
-                    (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+                // imag(ft_fields(i)[field]) = (imag(ft_fields(i)[field])*(1 + stab_coeff*dt*pow(k, 2)) - imag(gr(i)[field])*gl_damping*dt) / \
+                //     (1.0 + 2*gl_damping*dt*interface_term + stab_coeff*dt*pow(k, 2));
+
+                interf_factor = 2*gl_damping*dt*interface_term;
+                factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+
+                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
             }
         }
 
         // save_complex_field("data/conc_ft.csv", ft_fields, 0);
         // exit(1);
+
+        if (ft_filter != nullptr){
+            ft_filter->apply(ft_fields);
+        }
 
         // Inverse Fourier transform --> output into gr
         fft->execute(ft_fields, gr, FFTW_BACKWARD, all_fields);
@@ -390,6 +410,14 @@ void CHGL<dim>::save_noise_realization(const string &fname, unsigned int field) 
     cook_noise[field]->create(noise);
     //cook_noise[field]->noise2grid(fname, noise);
 }
+
+
+template<int dim>
+void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
+    ft_filter = new RaisedCosine(omega_cut, roll_off);
+    own_ft_filter_ptr = true;
+}
+
 // Explicit instantiations
 template class CHGL<1>;
 template class CHGL<2>;

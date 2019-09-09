@@ -150,3 +150,11 @@ cdef class PyCHGL:
             self.thisptr2D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
         elif self.dim == 3:
             self.thisptr3D.set_free_energy(<TwoPhaseLandauBase*> term.thisptr)
+
+    def set_raised_cosine_filter(self, omega_cut, roll_off):
+        if self.dim == 1:
+            self.thisptr1D.set_raised_cosine_filter(omega_cut, roll_off)
+        elif self.dim == 2:
+            self.thisptr2D.set_raised_cosine_filter(omega_cut, roll_off)
+        elif self.dim == 3:
+            self.thisptr3D.set_raised_cosine_filter(omega_cut, roll_off)
