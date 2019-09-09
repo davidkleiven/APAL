@@ -3,7 +3,6 @@
 #include "chgl.hpp"
 #include "sparse_matrix.hpp"
 #include <array>
-#include <set>
 
 template<int dim>
 class CHGLRealSpace: public CHGL<dim>{
@@ -31,9 +30,6 @@ public:
 
     /** Calculate the energy of the system */
     void energy(std::map<std::string, double> &tr_item) const;
-
-    /** Conserve volume of the order parameter squared */
-    void conserve_volume(unsigned int gl_field);
 private:
     unsigned int implicitDir{0};
     unsigned int field_deriv_update_freq{1};
@@ -45,7 +41,6 @@ private:
     double max_strain_deriv{0.0};
 
     MMSP::vector<int> & wrap(MMSP::vector<int> &pos) const;
-    std::set<unsigned int> conserved_gl_fields;
 
     unsigned int node_index(MMSP::vector<int> &pos) const;
 

@@ -78,6 +78,8 @@ void CHGL<dim>::update(int nsteps){
     MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_fields(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > free_energy_real_space(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > fourier_strain_func_deriv(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > volume_interpolating_function(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_volume_interpolating_function(gr);
 
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > temp(gr);
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > new_gr(gr);
@@ -119,6 +121,9 @@ void CHGL<dim>::update(int nsteps){
             for (unsigned int j=0;j<tot_num_fields;j++){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
+
+                real(volume_interpolating_function(j)[j]) = deriv_vol_interpolating_function(real(gr(i)[j]));
+                imag(volume_interpolating_function(j)[j]) = 0.0;
             }
         }
 
@@ -134,6 +139,9 @@ void CHGL<dim>::update(int nsteps){
 
         // Fourier transform the free energy --> output info grid
         fft->execute(free_energy_real_space, gr, FFTW_FORWARD, all_fields);
+
+        // Fourier transform the volume shape function
+        fft->execute(volume_interpolating_function, volume_interpolating_function, FFTW_FORWARD, all_fields);
 
         // Update using semi-implicit scheme
         #ifndef NO_PHASEFIELD_PARALLEL
@@ -170,15 +178,18 @@ void CHGL<dim>::update(int nsteps){
 
                 interf_factor = 2*gl_damping*dt*interface_term;
                 factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
-                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
-                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_real = - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_imag = - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
 
                 if (this->khachaturyan.num_models() > 0){
                     double value = real(fourier_strain_func_deriv(i)[field]);
-                    real(ft_fields(i)[field]) -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                    rhs_real -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
                     value = imag(fourier_strain_func_deriv(i)[field]);
-                    imag(ft_fields(i)[field]) -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                    rhs_imag -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
                 }
+
+                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor + rhs_real;
+                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor + rhs_imag;
             }
         }
 
@@ -462,6 +473,26 @@ void CHGL<dim>::calculate_strain_contrib(const ft_grid_t<dim> &grid_in, ft_grid_
 
     // Fourier transform the functional derivative
     this->fft->execute(func_deriv, out, FFTW_FORWARD, shape_fields);
+}
+
+template<int dim>
+double CHGL<dim>::deriv_vol_interpolating_function(double n) const{
+    double nmax = sqrt(2.0/3.0); // From Landau polynomial fit
+    double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+    if ((n < 0.0) || (n > nmax)){
+        value = 0.0;
+    }
+    return value;
+}
+
+template<int dim>
+double CHGL<dim>::lagrange_multiplier(double rhs, double zeroth_vol_interp){
+    return gl_damping*rhs/zeroth_vol_interp;
+}
+
+template<int dim>
+void CHGL<dim>::conserve_volume(unsigned int gl_field){
+    conserved_gl_fields.insert(gl_field);
 }
 
 // Explicit instantiations
