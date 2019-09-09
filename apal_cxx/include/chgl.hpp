@@ -74,6 +74,9 @@ public:
 
     /** Set a raised cosine filter */
     void set_raised_cosine_filter(double omega_cut, double roll_off);
+
+    /** Set a gaussian filter */
+    void set_gaussian_filter(double width);
 protected:
     double M;
     double alpha;

@@ -159,6 +159,14 @@ cdef class PyCHGL:
         elif self.dim == 3:
             self.thisptr3D.set_raised_cosine_filter(omega_cut, roll_off)
 
+    def set_gaussian_filter(self, omega_cut):
+        if self.dim == 1:
+            self.thisptr1D.set_gaussian_filter(omega_cut)
+        elif self.dim == 2:
+            self.thisptr2D.set_gaussian_filter(omega_cut)
+        elif self.dim == 3:
+            self.thisptr3D.set_gaussian_filter(omega_cut)
+
     def add_strain_model(self, PyKhachaturyan obj, field):
         if self.dim == 1:
             self.thisptr1D.add_strain_model(deref(obj.thisptr), field)

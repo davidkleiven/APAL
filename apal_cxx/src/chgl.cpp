@@ -3,6 +3,7 @@
 #include "chc_noise.hpp"
 #include "gaussian_white_noise.hpp"
 #include "raised_cosine.hpp"
+#include "gaussian_filter.hpp"
 #include <stdexcept>
 #include <sstream>
 #include <omp.h>
@@ -221,6 +222,10 @@ void CHGL<dim>::update(int nsteps){
     }
 
     cout << "Energy: " << new_energy << endl;
+    
+    if (this->khachaturyan.num_models() > 0){
+        cout << "Strain energy per volume precipitate " << this->khachaturyan.get_last_strain_energy() << endl;
+    }
 }
 
 template<int dim>
@@ -427,10 +432,21 @@ void CHGL<dim>::save_noise_realization(const string &fname, unsigned int field) 
 
 template<int dim>
 void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
+    if (ft_filter) delete ft_filter;
+
     ft_filter = new RaisedCosine(omega_cut, roll_off);
     own_ft_filter_ptr = true;
 
     cout << "Using raised cosing filter. Omega_cut: " << omega_cut << ". Roll off: " << roll_off << endl;
+}
+
+template<int dim>
+void CHGL<dim>::set_gaussian_filter(double width){
+    if (ft_filter) delete ft_filter;
+
+    ft_filter = new GaussianFilter(width);
+    own_ft_filter_ptr = true;
+    cout << "Using gaussian filter. Omega_cut: " << width << endl;
 }
 
 template<int dim>

@@ -43,4 +43,6 @@ cdef extern from "chgl.hpp":
 
         void set_raised_cosine_filter(double omega_cut, double roll_off)
 
+        void set_gaussian_filter(double width)
+
         void add_strain_model(Khachaturyan model, int field)
