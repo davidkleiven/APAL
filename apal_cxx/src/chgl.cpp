@@ -71,10 +71,12 @@ void CHGL<dim>::update(int nsteps){
     #endif
 
 	MMSP::grid<dim, MMSP::vector<fftw_complex> >& gr = *(this->cmplx_grid_ptr);
+    
 	MMSP::ghostswap(gr);
 
     MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_fields(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > free_energy_real_space(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > fourier_strain_func_deriv(gr);
 
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > temp(gr);
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > new_gr(gr);
@@ -117,6 +119,11 @@ void CHGL<dim>::update(int nsteps){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
             }
+        }
+
+        // Calcualte strain functional derivatives
+        if (this->khachaturyan.num_models() > 0){
+            calculate_strain_contrib(gr, fourier_strain_func_deriv);
         }
 
         // Fourier transform all the fields --> output in ft_fields
@@ -163,8 +170,14 @@ void CHGL<dim>::update(int nsteps){
                 interf_factor = 2*gl_damping*dt*interface_term;
                 factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
                 real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
-
                 imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+
+                if (this->khachaturyan.num_models() > 0){
+                    double value = real(fourier_strain_func_deriv(i)[field]);
+                    real(ft_fields(i)[field]) -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                    value = imag(fourier_strain_func_deriv(i)[field]);
+                    imag(ft_fields(i)[field]) -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                }
             }
         }
 
@@ -416,6 +429,21 @@ template<int dim>
 void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
     ft_filter = new RaisedCosine(omega_cut, roll_off);
     own_ft_filter_ptr = true;
+}
+
+template<int dim>
+void CHGL<dim>::calculate_strain_contrib(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &out){
+    vector<int> shape_fields;
+    for (unsigned int i=0;i<dim;i++){
+        shape_fields.push_back(i+1);
+    }
+
+    ft_grid_t<dim> func_deriv(grid_in);
+    // Get the realspace functional derivative
+    this->khachaturyan.functional_derivative(grid_in, func_deriv, shape_fields);
+
+    // Fourier transform the functional derivative
+    this->fft->execute(func_deriv, out, FFTW_FORWARD, shape_fields);
 }
 
 // Explicit instantiations

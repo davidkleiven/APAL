@@ -19,6 +19,9 @@
 
 typedef std::vector<std::vector<double> > interface_vec_t;
 
+template<int dim>
+using ft_grid_t = MMSP::grid<dim, MMSP::vector<fftw_complex> >;
+
 class FourierDomainFilter;
 
 template<int dim>
@@ -106,5 +109,6 @@ protected:
 
     /** Gaussian filter for high modes */
     double gaussian_filter_weight(double k) const;
+    void calculate_strain_contrib(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &out);
 };
 #endif
