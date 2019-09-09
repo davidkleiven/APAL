@@ -58,7 +58,9 @@ class TestBuildMatrices(unittest.TestCase):
         flat_mat = mat.ravel()
         flat_mat.sort()
 
-        self.assertTrue(np.allclose(flat_lap3D, flat_mat))
+        max_diff = np.max(np.abs(flat_lap3D - flat_mat))
+        msg = 'Max dev. {}'.format(max_diff)
+        self.assertTrue(np.allclose(flat_lap3D, flat_mat), msg=msg)
 
     def test_add_same_element(self):
         res = pytest_add_same_element()
