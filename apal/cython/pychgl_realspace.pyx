@@ -5,10 +5,10 @@ from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 
 # Hack to support integer template arguments with cython
-cdef extern from *:
-    ctypedef int intParameter1 "1"
-    ctypedef int intParameter2 "2"
-    ctypedef int intParameter3 "3"
+#cdef extern from *:
+#    ctypedef int intParameter1 "1"
+#    ctypedef int intParameter2 "2"
+#    ctypedef int intParameter3 "3"
 
 cdef extern from "two_phase_landau_base.hpp":
     cdef cppclass TwoPhaseLandauBase:

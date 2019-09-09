@@ -106,7 +106,9 @@ void CHGL<dim>::update(int nsteps){
             for (unsigned int j=1;j<tot_num_fields;j++){
                 real(free_eng_deriv[j]) = this->free_energy->partial_deriv_shape_vec(phi_raw_ptr, j-1);
                 imag(free_eng_deriv[j]) = 0.0;
+            }
 
+            for (unsigned int j=0;j<tot_num_fields;j++){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
             }
@@ -150,82 +152,32 @@ void CHGL<dim>::update(int nsteps){
             }
         }
 
-        if (use_filter){
-            #ifndef NO_PHASEFIELD_PARALLEL
-            #pragma omp parallel for
-            #endif
-            for (int i=0;i<MMSP::nodes(ft_fields);i++){
-                MMSP::vector<int> pos = ft_fields.position(i);
-                MMSP::vector<double> k_vec(pos.length());
-                k_vector(pos, k_vec, this->L);
-                double k = norm(k_vec);
-
-                for (int field=0;field<MMSP::fields(ft_fields);field++){
-                    double w = gaussian_filter_weight(k);
-                    real(ft_fields(i)[field]) *= w;
-                    imag(ft_fields(i)[field]) *= w;
-                }
-            }
-        }
-
         // save_complex_field("data/conc_ft.csv", ft_fields, 0);
         // exit(1);
 
         // Inverse Fourier transform --> output into gr
         fft->execute(ft_fields, gr, FFTW_BACKWARD, all_fields);
-
-        //  MMSP::vector<double> lapl_phi = MMSP::laplacian(gr, i);
-        //  MMSP::vector<double> free_eng_deriv(phi.length());
-        //     // Update the first term (Cahn-Hilliard term)
-        //     temp(i) = free_eng_deriv;
-		// 	temp(i)[0] -= 2.0*alpha*lapl_phi[0];
-
-        //     // Update the Ginzburg-Landau terms
-        //     for (unsigned int dir=0;dir<dim;dir++){
-        //         MMSP::vector<double> lapl_dir = partial_double_derivative(gr, i, dir);
-        //         for (unsigned int gl_eq=0;gl_eq<phi.length()-1;gl_eq++)
-        //         {
-        //             temp(i)[gl_eq+1] -= 2.0*interface[gl_eq][dir]*lapl_dir[gl_eq+1];
-        //         }
-        //     }
-		// }
-
-		// // MMSP::ghostswap(temp);
-        // #ifndef NO_PHASEFIELD_PARALLEL
-        // #pragma omp parallel for
-        // #endif
-		// for (int i=0;i<MMSP::nodes(gr);i++){
-        //     // Evaluate the Laplacian for the first field
-		// 	double lapl = MMSP::laplacian(temp, i, 0);
-		// 	double change = M * lapl;
-
-        //     // Update according to Cahn-Hilliard
-		// 	new_gr(i)[0] = gr(i)[0] + dt*change;
-
-        //     // Update the Ginzburg-Landau equations
-        //     for (unsigned int gl_eq=0;gl_eq<this->num_fields-1;gl_eq++){
-        //         new_gr(i)[gl_eq+1] = gr(i)[gl_eq+1] - gl_damping*temp(i)[gl_eq+1];
-        //     }
-		//}
-		//MMSP::swap(gr, new_gr);
-		//MMSP::ghostswap(gr);
 	}
 
 
     double new_energy = energy();
     bool did_update = false;
 
-    if ((new_energy > old_energy) && adaptive_dt){
-        // We don't transfer the solution
-        set_timestep(dt/2.0);
-        cout << "Timestep refined. New dt = " << dt;
-    }
-    else{
-        // Transfer to parents grid
-        old_energy = new_energy;
-        to_parent_grid();
-        did_update = true;
-    }
+    // Transfer to parents grid
+    old_energy = new_energy;
+    to_parent_grid();
+
+    // if ((new_energy > old_energy) && adaptive_dt){
+    //     // We don't transfer the solution
+    //     set_timestep(dt/2.0);
+    //     cout << "Timestep refined. New dt = " << dt;
+    // }
+    // else{
+    //     // Transfer to parents grid
+    //     old_energy = new_energy;
+    //     to_parent_grid();
+    //     did_update = true;
+    // }
 
     update_counter += 1;
 
