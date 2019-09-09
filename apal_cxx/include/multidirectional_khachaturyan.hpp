@@ -216,8 +216,9 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
                     int field_indx2 = shape_fields[field2];
 
                     real(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*real(grid_out(node)[field_indx2]);
-                    real(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*real(shape_squared(node)[field_indx2]);
                     imag(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*imag(grid_out(node)[field_indx2]);
+
+                    real(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*real(shape_squared(node)[field_indx2]);
                     imag(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*imag(shape_squared(node)[field_indx2]);
                 }
             }
