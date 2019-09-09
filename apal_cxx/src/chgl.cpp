@@ -429,6 +429,8 @@ template<int dim>
 void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
     ft_filter = new RaisedCosine(omega_cut, roll_off);
     own_ft_filter_ptr = true;
+
+    cout << "Using raised cosing filter. Omega_cut: " << omega_cut << ". Roll off: " << roll_off << endl;
 }
 
 template<int dim>
