@@ -122,8 +122,8 @@ void CHGL<dim>::update(int nsteps){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
 
-                real(volume_interpolating_function(j)[j]) = deriv_vol_interpolating_function(real(gr(i)[j]));
-                imag(volume_interpolating_function(j)[j]) = 0.0;
+                real(volume_interpolating_function(i)[j]) = deriv_vol_interpolating_function(real(gr(i)[j]));
+                imag(volume_interpolating_function(i)[j]) = 0.0;
             }
         }
 
@@ -141,8 +141,9 @@ void CHGL<dim>::update(int nsteps){
         fft->execute(free_energy_real_space, gr, FFTW_FORWARD, all_fields);
 
         // Fourier transform the volume shape function
-        fft->execute(volume_interpolating_function, volume_interpolating_function, FFTW_FORWARD, all_fields);
+        fft->execute(volume_interpolating_function, ft_volume_interpolating_function, FFTW_FORWARD, all_fields);
 
+        std::vector<double> lagrange_multipliers(MMSP::fields(gr));
         // Update using semi-implicit scheme
         #ifndef NO_PHASEFIELD_PARALLEL
         #pragma omp parallel for
@@ -178,18 +179,37 @@ void CHGL<dim>::update(int nsteps){
 
                 interf_factor = 2*gl_damping*dt*interface_term;
                 factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
-                double rhs_real = - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
-                double rhs_imag = - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_real = -real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_imag = -imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
 
+                // Right hand side of PDE as given in the continuous scheme
+                double rhs_for_lagrange = -real(gr(i)[field])*gl_damping;
+
+                double lagrange = 0.0;
                 if (this->khachaturyan.num_models() > 0){
                     double value = real(fourier_strain_func_deriv(i)[field]);
                     rhs_real -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                    rhs_for_lagrange -= gl_damping*value;
+
                     value = imag(fourier_strain_func_deriv(i)[field]);
                     rhs_imag -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
                 }
-
                 real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor + rhs_real;
                 imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor + rhs_imag;
+
+                if (is_origin(k_vec)){
+                    lagrange_multipliers[field] = lagrange_multiplier(rhs_for_lagrange, real(ft_volume_interpolating_function(i)[field]));
+                    lagrange_multipliers[field] *= dt/(1.0 + 0.5*interf_factor);
+                    //cout << field << " " << lagrange_multipliers[field] << " " << i << " " << real(ft_volume_interpolating_function(i)[field]) << endl;
+                }
+            }
+        }
+
+        // Update conserved fields
+        for (auto field : conserved_gl_fields){
+            for (unsigned int i=0;i<MMSP::nodes(ft_fields);i++){
+                real(ft_fields(i)[field]) -= lagrange_multipliers[field]*real(ft_volume_interpolating_function(i)[field]);
+                imag(ft_fields(i)[field]) -= lagrange_multipliers[field]*imag(ft_volume_interpolating_function(i)[field]);
             }
         }
 
@@ -226,11 +246,11 @@ void CHGL<dim>::update(int nsteps){
 
     update_counter += 1;
 
-    if ((update_counter%increase_dt == 0) && adaptive_dt && did_update){
-        dt *= 2.0;
-        set_timestep(dt*2.0);
-        cout << "Try to increase dt again. New dt = " << dt;
-    }
+    // if ((update_counter%increase_dt == 0) && adaptive_dt && did_update){
+    //     dt *= 2.0;
+    //     set_timestep(dt*2.0);
+    //     cout << "Try to increase dt again. New dt = " << dt;
+    // }
 
     cout << "Energy: " << new_energy << endl;
     
@@ -487,7 +507,10 @@ double CHGL<dim>::deriv_vol_interpolating_function(double n) const{
 
 template<int dim>
 double CHGL<dim>::lagrange_multiplier(double rhs, double zeroth_vol_interp){
-    return gl_damping*rhs/zeroth_vol_interp;
+    if (abs(zeroth_vol_interp) < 1E-6){
+        return 0.0;
+    }
+    return rhs/zeroth_vol_interp;
 }
 
 template<int dim>

@@ -248,3 +248,13 @@ void system_matrix_implicit_laplacian3D(unsigned int L, double prefactor, Sparse
     double pref_array[3] = {prefactor, prefactor, prefactor};
     system_matrix_implicit_laplacian3D(L, pref_array, mat);
 }
+
+bool is_origin(const MMSP::vector<double> &vec){
+    const double tol = 1E-8;
+    for (unsigned int i=0;i<vec.length();i++){
+        if (abs(vec[i]) > tol){
+            return false;
+        }
+    }
+    return true;
+}

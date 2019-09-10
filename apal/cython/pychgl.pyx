@@ -174,3 +174,11 @@ cdef class PyCHGL:
             self.thisptr2D.add_strain_model(deref(obj.thisptr), field)
         elif self.dim == 3:
             self.thisptr3D.add_strain_model(deref(obj.thisptr), field)
+
+    def conserve_volume(self, gl_field):
+        if self.dim == 1:
+            self.thisptr1D.conserve_volume(gl_field)
+        elif self.dim == 2:
+            self.thisptr2D.conserve_volume(gl_field)
+        elif self.dim == 3:
+            self.thisptr3D.conserve_volume(gl_field)

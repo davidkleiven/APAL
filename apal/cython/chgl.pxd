@@ -46,3 +46,5 @@ cdef extern from "chgl.hpp":
         void set_gaussian_filter(double width)
 
         void add_strain_model(Khachaturyan model, int field)
+
+        void conserve_volume(unsigned int field)
