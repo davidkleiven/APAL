@@ -7,6 +7,7 @@ const unsigned int NUM_TABULATED_VALUES = 1000;
 
 Vandeven::Vandeven(unsigned int order): p(order){
     data = new double[NUM_TABULATED_VALUES];
+    precalculate_data();
 }
 
 Vandeven::~Vandeven(){
@@ -19,8 +20,13 @@ void Vandeven::precalculate_data(){
     // Calculate the integral
     data[0] = 0.0;
     for (unsigned int i=1;i<NUM_TABULATED_VALUES;i++){
-        double x = get_x(i);
-        data[i] = data[i-1] + 0.5*(data[i-1] + pow(x*(1-x), p-1))*dx();
+        double x1 = get_x(i-1);
+        double x2 = get_x(i);
+
+        double y1 = pow(x1*(1-x1), p-1);
+        double y2 = pow(x2*(1-x2), p-1);
+
+        data[i] = data[i-1] + 0.5*(y1 + y2)*dx();
     }
 
     // Update the data array to actually hold the filter values
