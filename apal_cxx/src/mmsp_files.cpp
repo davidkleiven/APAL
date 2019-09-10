@@ -23,3 +23,4 @@
 #include "test_fftw.cpp"
 #include "test_track_value_logger.cpp"
 #include "test_raised_cosine_filter.cpp"
+#include "test_vandeven.cpp"
