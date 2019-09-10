@@ -163,5 +163,8 @@ double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector
 
 bool is_origin(const MMSP::vector<double> &vec);
 
+/** Calculate the logarithm of the factorial */
+double ln_factorial(unsigned int value);
+
 #include "tools.tpp"
 #endif

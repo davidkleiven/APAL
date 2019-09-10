@@ -8,6 +8,7 @@
 #include <sstream>
 #include <omp.h>
 #include <iostream>
+#include "vandeven.hpp"
 
 using namespace std;
 
@@ -478,6 +479,18 @@ void CHGL<dim>::set_gaussian_filter(double width){
     ft_filter = new GaussianFilter(width);
     own_ft_filter_ptr = true;
     cout << "Using gaussian filter. Omega_cut: " << width << endl;
+}
+
+template<int dim>
+void CHGL<dim>::set_vandeven_filter(unsigned int order){
+    if (order < 1){
+        throw invalid_argument("Order of vandeven filter has to be larger than 1!");
+    }
+    if (ft_filter) delete ft_filter;
+
+    ft_filter = new Vandeven(order);
+    own_ft_filter_ptr = true;
+    cout << "Using Vandeven filter. Order: " << order << endl;
 }
 
 template<int dim>

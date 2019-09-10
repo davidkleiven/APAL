@@ -15,6 +15,7 @@
 #include "origin_singularity_integration.cpp"
 #include "raised_cosine.cpp"
 #include "gaussian_filter.cpp"
+#include "vandeven.cpp"
 
 // Test files
 #include "test_multidirectional_khachaturyan.cpp"
@@ -22,3 +23,4 @@
 #include "test_fftw.cpp"
 #include "test_track_value_logger.cpp"
 #include "test_raised_cosine_filter.cpp"
+#include "test_vandeven.cpp"
