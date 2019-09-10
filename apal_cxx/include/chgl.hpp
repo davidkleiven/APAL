@@ -79,6 +79,9 @@ public:
     /** Set a gaussian filter */
     void set_gaussian_filter(double width);
 
+    /** Set vandeven filter */
+    void set_vandeven_filter(unsigned int order);
+
     /** Conserve volume of the order parameter squared */
     void conserve_volume(unsigned int gl_field);
 protected:

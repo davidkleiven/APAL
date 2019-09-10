@@ -167,6 +167,14 @@ cdef class PyCHGL:
         elif self.dim == 3:
             self.thisptr3D.set_gaussian_filter(omega_cut)
 
+    def set_vandeven_filter(self, order):
+        if self.dim == 1:
+            self.thisptr1D.set_vandeven_filter(order)
+        elif self.dim == 2:
+            self.thisptr2D.set_vandeven_filter(order)
+        elif self.dim == 3:
+            self.thisptr3D.set_vandeven_filter(order)
+
     def add_strain_model(self, PyKhachaturyan obj, field):
         if self.dim == 1:
             self.thisptr1D.add_strain_model(deref(obj.thisptr), field)
