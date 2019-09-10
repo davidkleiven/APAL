@@ -143,7 +143,7 @@ void save_complex_field(const std::string &fname, MMSP::grid<dim, MMSP::vector<f
     }
 
     for (unsigned int i=0;i<MMSP::nodes(grid);i++){
-        ofs << sqrt(pow(grid(i)[field].re, 2) + pow(grid(i)[field].im, 2));
+        ofs << sqrt(pow(real(grid(i)[field]), 2) + pow(imag(grid(i)[field]), 2));
 
         if (i < MMSP::nodes(grid) - 1){
             ofs << ",";

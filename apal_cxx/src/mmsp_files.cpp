@@ -14,6 +14,7 @@
 #include "elasticity_util.cpp"
 #include "origin_singularity_integration.cpp"
 #include "raised_cosine.cpp"
+#include "gaussian_filter.cpp"
 
 // Test files
 #include "test_multidirectional_khachaturyan.cpp"

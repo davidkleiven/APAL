@@ -3,6 +3,7 @@
 #include "phase_field_simulation.hpp"
 #include "two_phase_landau_base.hpp"
 #include "fftw_mmsp.hpp"
+#include <set>
 
 #ifdef HAS_FFTW
     #include <complex>
@@ -18,6 +19,9 @@
 #include <string>
 
 typedef std::vector<std::vector<double> > interface_vec_t;
+
+template<int dim>
+using ft_grid_t = MMSP::grid<dim, MMSP::vector<fftw_complex> >;
 
 class FourierDomainFilter;
 
@@ -71,6 +75,12 @@ public:
 
     /** Set a raised cosine filter */
     void set_raised_cosine_filter(double omega_cut, double roll_off);
+
+    /** Set a gaussian filter */
+    void set_gaussian_filter(double width);
+
+    /** Conserve volume of the order parameter squared */
+    void conserve_volume(unsigned int gl_field);
 protected:
     double M;
     double alpha;
@@ -88,6 +98,7 @@ protected:
     unsigned int update_counter{0};
     const FourierDomainFilter* ft_filter{nullptr};
     bool own_ft_filter_ptr{false};
+    std::set<unsigned int> conserved_gl_fields;
 
     interface_vec_t interface;
     const TwoPhaseLandauBase *free_energy{nullptr};
@@ -106,5 +117,12 @@ protected:
 
     /** Gaussian filter for high modes */
     double gaussian_filter_weight(double k) const;
+    void calculate_strain_contrib(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &out);
+
+    /** Derivative of the volume interpolating function */
+    double deriv_vol_interpolating_function(double eta) const;
+
+    /** Calculate the lagrange multiplier */
+    double lagrange_multiplier(double rhs, double zeroth_vol_interp);
 };
 #endif

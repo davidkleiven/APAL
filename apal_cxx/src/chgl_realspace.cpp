@@ -243,7 +243,7 @@ void CHGLRealSpace<dim>::update(int nsteps){
             if (field > 0){
                 add_strain_contribution(rhs, field);
 
-                if (conserved_gl_fields.find(field) != conserved_gl_fields.end()){
+                if (this->conserved_gl_fields.find(field) != this->conserved_gl_fields.end()){
                     // This GL field should be conserved
                     double lagrange = get_lagrange_multiplier(field, deriv_free_eng);
                     add_volume_conservering_contribution(rhs, lagrange, field);
@@ -566,16 +566,11 @@ void CHGLRealSpace<dim>::log_mean_values(std::map<std::string, double> &logvalue
     // squared value should be conserved
     std::vector<double> mean_sq;
     mean_value_sq(*this->grid_ptr, mean_sq);
-    for (auto field : conserved_gl_fields){
+    for (auto field : this->conserved_gl_fields){
         stringstream ss;
         ss << "mean_sq" << field;
         logvalues[ss.str()] = mean_sq[field];
     }
-}
-
-template<int dim>
-void CHGLRealSpace<dim>::conserve_volume(unsigned int gl_field){
-    conserved_gl_fields.insert(gl_field);
 }
 
 template<int dim>

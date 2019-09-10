@@ -161,5 +161,7 @@ void store_diff(const MMSP::grid<dim, T> &grid1, const MMSP::grid<dim, T> &grid2
 template<int dim, class T>
 double hessian_diag(const MMSP::grid<dim, MMSP::vector<T> > &grid1, MMSP::vector<int> &pos, unsigned int field, unsigned int i);
 
+bool is_origin(const MMSP::vector<double> &vec);
+
 #include "tools.tpp"
 #endif

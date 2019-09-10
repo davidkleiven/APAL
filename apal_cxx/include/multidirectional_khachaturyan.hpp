@@ -13,6 +13,11 @@
 #endif
 #include "fftw_complex_placeholder.hpp"
 
+template<int dim>
+using ft_grid_t = MMSP::grid<dim, MMSP::vector<fftw_complex> >;
+
+typedef std::vector<int> ivec_t;
+
 class MultidirectionalKhachaturyan{
     public:
         MultidirectionalKhachaturyan(double max_order_param): max_order_param(max_order_param){};
@@ -25,8 +30,7 @@ class MultidirectionalKhachaturyan{
         unsigned int num_models() const{return strain_models.size();};
 
         template<int dim>
-        void functional_derivative(const MMSP::grid<dim, MMSP::vector<fftw_complex> >&grid_in, 
-            MMSP::grid<dim, MMSP::vector<fftw_complex> >&grid_out, const std::vector<int> &shape_fields);
+        void functional_derivative(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &grid_out, const ivec_t &shape_fields);
 
         double get_last_strain_energy() const{return last_strain_energy;};
 
@@ -35,11 +39,11 @@ class MultidirectionalKhachaturyan{
 
         /** Calculate the direct contribution from only the misfit strains */
         template<int dim, class T>
-        double misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const std::vector<int> &shape_fields) const;
+        double misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const ivec_t &shape_fields) const;
 
         /** Calculate the volume of the auxillary fields */
         template<int dim, class T>
-        double volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const;
+        double volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const ivec_t &shape_fields) const;
 
         double get_max_order_param() const{return max_order_param;};
     private:
@@ -49,10 +53,10 @@ class MultidirectionalKhachaturyan{
         double last_strain_energy{0.0};
 
         template<int dim>
-        double fourier_integral(const MMSP::grid<dim, MMSP::vector<fftw_complex> >&ft_fields, const std::vector<int> &shape_fields) const;
+        double fourier_integral(const ft_grid_t<dim> &ft_fields, const ivec_t &shape_fields) const;
 
         void get_effective_stresses(std::vector<mat3x3> &eff_stress) const;
-        void index_map(const std::vector<int> &shape_fields, std::map<unsigned int, unsigned int> &mapping) const;
+        void index_map(const ivec_t &shape_fields, std::map<unsigned int, unsigned int> &mapping) const;
 
         // Explicitly set loggers to avoid making the entire class a template class
         MultidirectionalKhachDataLogger<1> *logger1{nullptr};
@@ -67,8 +71,7 @@ class MultidirectionalKhachaturyan{
 
 // Implementation of template functions
 template<int dim>
-void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid_in,
-    MMSP::grid<dim, MMSP::vector<fftw_complex> > &grid_out, const std::vector<int> &shape_fields){
+void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &grid_out, const ivec_t &shape_fields){
         #ifndef HAS_FFTW
             throw std::runtime_error("The package was compiled without FFTW!");
         #endif
@@ -81,7 +84,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
         int dims[3];
         get_dims(grid_in, dims);
 
-        MMSP::grid<dim, MMSP::vector<fftw_complex> > shape_squared(grid_in);
+        ft_grid_t<dim> shape_squared(grid_in);
 
         if (fft == nullptr){
             fft = new FFTW(dim, dims);
@@ -98,7 +101,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
         }
 
         if (logger<dim>() != nullptr){
-            logger<dim>()->shape_squared_in = new MMSP::grid<dim, MMSP::vector<fftw_complex> >(shape_squared);
+            logger<dim>()->shape_squared_in = new ft_grid_t<dim>(shape_squared);
             logger<dim>()->shape_squared_in->copy(shape_squared);
         }
 
@@ -108,7 +111,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
         fft->execute(shape_squared, grid_out, FFTW_FORWARD, shape_fields);
 
         if (logger<dim>() != nullptr){
-            logger<dim>()->fourier_shape_squared = new MMSP::grid<dim, MMSP::vector<fftw_complex> >(grid_out);
+            logger<dim>()->fourier_shape_squared = new ft_grid_t<dim>(grid_out);
             logger<dim>()->fourier_shape_squared->copy(grid_out);
         }
 
@@ -145,8 +148,8 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
             logger<dim>()->b_tensor_indx = b_tensor_indx;
         }
 
-        MMSP::grid<dim, MMSP::vector<fftw_complex> > temp_grid(grid_in);
-        MMSP::grid<dim, MMSP::vector<fftw_complex> > temp_grid2(grid_in);
+        ft_grid_t<dim> temp_grid(grid_in);
+        ft_grid_t<dim> temp_grid2(grid_in);
 
         // Multiply with the Green function
         #ifndef NO_PHASEFIELD_PARALLEL
@@ -213,8 +216,9 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
                     int field_indx2 = shape_fields[field2];
 
                     real(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*real(grid_out(node)[field_indx2]);
-                    real(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*real(shape_squared(node)[field_indx2]);
                     imag(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*imag(grid_out(node)[field_indx2]);
+
+                    real(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*real(shape_squared(node)[field_indx2]);
                     imag(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*imag(shape_squared(node)[field_indx2]);
                 }
             }
@@ -230,9 +234,9 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
         
 
         if (logger<dim>() != nullptr){
-            logger<dim>()->b_tensor_dot_ft_squared = new MMSP::grid<dim, MMSP::vector<fftw_complex> >(temp_grid);
+            logger<dim>()->b_tensor_dot_ft_squared = new ft_grid_t<dim>(temp_grid);
             logger<dim>()->b_tensor_dot_ft_squared->copy(temp_grid);
-            logger<dim>()->misfit_energy_contrib = new MMSP::grid<dim, MMSP::vector<fftw_complex> >(temp_grid2);
+            logger<dim>()->misfit_energy_contrib = new ft_grid_t<dim>(temp_grid2);
             logger<dim>()->misfit_energy_contrib->copy(temp_grid2);
         }
 
@@ -249,13 +253,14 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
             real(temp_grid(i)[field]) = 2*(real(grid_in(i)[field])/max_order_param)*(real(temp_grid2(i)[field]) - real(grid_out(i)[field]));
             imag(temp_grid(i)[field]) = 0.0; // temp_grid should be real at this stage
         }
+        
 
         // Not nessecary if the next line is used
         temp_grid.swap(grid_out);
     }
 
     template<int dim>
-    double MultidirectionalKhachaturyan::fourier_integral(const MMSP::grid<dim, MMSP::vector<fftw_complex> > &ft_fields, const std::vector<int> &shape_fields) const{
+    double MultidirectionalKhachaturyan::fourier_integral(const ft_grid_t<dim> &ft_fields, const ivec_t &shape_fields) const{
         double integral = 0.0;
         double norm_factor = MMSP::nodes(ft_fields);
 
@@ -315,7 +320,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
     }
 
     template<int dim, class T>
-    double MultidirectionalKhachaturyan::misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const std::vector<int> &shape_fields) const{
+    double MultidirectionalKhachaturyan::misfit_contribution(const MMSP::grid<dim, MMSP::vector<T> > &fields, const ivec_t &shape_fields) const{
         double integral = 0.0;
 
         std::vector<mat3x3> eff_stress;
@@ -347,7 +352,7 @@ void MultidirectionalKhachaturyan::functional_derivative(const MMSP::grid<dim, M
 
 
     template<int dim, class T>
-    double MultidirectionalKhachaturyan::volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const std::vector<int> &shape_fields) const {
+    double MultidirectionalKhachaturyan::volume(const MMSP::grid<dim, MMSP::vector<T> > &grid, const ivec_t &shape_fields) const {
         double vol = 0.0;
         for (int field : shape_fields){
             vol += sum_real(grid, field);

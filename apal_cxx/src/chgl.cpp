@@ -3,6 +3,7 @@
 #include "chc_noise.hpp"
 #include "gaussian_white_noise.hpp"
 #include "raised_cosine.hpp"
+#include "gaussian_filter.hpp"
 #include <stdexcept>
 #include <sstream>
 #include <omp.h>
@@ -71,10 +72,14 @@ void CHGL<dim>::update(int nsteps){
     #endif
 
 	MMSP::grid<dim, MMSP::vector<fftw_complex> >& gr = *(this->cmplx_grid_ptr);
+    
 	MMSP::ghostswap(gr);
 
     MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_fields(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > free_energy_real_space(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > fourier_strain_func_deriv(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > volume_interpolating_function(gr);
+    MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_volume_interpolating_function(gr);
 
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > temp(gr);
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > new_gr(gr);
@@ -116,7 +121,15 @@ void CHGL<dim>::update(int nsteps){
             for (unsigned int j=0;j<tot_num_fields;j++){
                 real(free_energy_real_space(i)[j]) = real(free_eng_deriv[j]);
                 imag(free_energy_real_space(i)[j]) = 0.0;
+
+                real(volume_interpolating_function(i)[j]) = deriv_vol_interpolating_function(real(gr(i)[j]));
+                imag(volume_interpolating_function(i)[j]) = 0.0;
             }
+        }
+
+        // Calcualte strain functional derivatives
+        if (this->khachaturyan.num_models() > 0){
+            calculate_strain_contrib(gr, fourier_strain_func_deriv);
         }
 
         // Fourier transform all the fields --> output in ft_fields
@@ -127,6 +140,10 @@ void CHGL<dim>::update(int nsteps){
         // Fourier transform the free energy --> output info grid
         fft->execute(free_energy_real_space, gr, FFTW_FORWARD, all_fields);
 
+        // Fourier transform the volume shape function
+        fft->execute(volume_interpolating_function, ft_volume_interpolating_function, FFTW_FORWARD, all_fields);
+
+        std::vector<double> lagrange_multipliers(MMSP::fields(gr));
         // Update using semi-implicit scheme
         #ifndef NO_PHASEFIELD_PARALLEL
         #pragma omp parallel for
@@ -162,9 +179,37 @@ void CHGL<dim>::update(int nsteps){
 
                 interf_factor = 2*gl_damping*dt*interface_term;
                 factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
-                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor - real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_real = -real(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                double rhs_imag = -imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
 
-                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor - imag(gr(i)[field])*gl_damping*dt/(1.0 + 0.5*interf_factor);
+                // Right hand side of PDE as given in the continuous scheme
+                double rhs_for_lagrange = -real(gr(i)[field])*gl_damping;
+
+                double lagrange = 0.0;
+                if (this->khachaturyan.num_models() > 0){
+                    double value = real(fourier_strain_func_deriv(i)[field]);
+                    rhs_real -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                    rhs_for_lagrange -= gl_damping*value;
+
+                    value = imag(fourier_strain_func_deriv(i)[field]);
+                    rhs_imag -= dt*gl_damping*value/(1.0 + 0.5*interf_factor);
+                }
+                real(ft_fields(i)[field]) = real(ft_fields(i)[field])*factor + rhs_real;
+                imag(ft_fields(i)[field]) = imag(ft_fields(i)[field])*factor + rhs_imag;
+
+                if (is_origin(k_vec)){
+                    lagrange_multipliers[field] = lagrange_multiplier(rhs_for_lagrange, real(ft_volume_interpolating_function(i)[field]));
+                    lagrange_multipliers[field] *= dt/(1.0 + 0.5*interf_factor);
+                    //cout << field << " " << lagrange_multipliers[field] << " " << i << " " << real(ft_volume_interpolating_function(i)[field]) << endl;
+                }
+            }
+        }
+
+        // Update conserved fields
+        for (auto field : conserved_gl_fields){
+            for (unsigned int i=0;i<MMSP::nodes(ft_fields);i++){
+                real(ft_fields(i)[field]) -= lagrange_multipliers[field]*real(ft_volume_interpolating_function(i)[field]);
+                imag(ft_fields(i)[field]) -= lagrange_multipliers[field]*imag(ft_volume_interpolating_function(i)[field]);
             }
         }
 
@@ -201,13 +246,17 @@ void CHGL<dim>::update(int nsteps){
 
     update_counter += 1;
 
-    if ((update_counter%increase_dt == 0) && adaptive_dt && did_update){
-        dt *= 2.0;
-        set_timestep(dt*2.0);
-        cout << "Try to increase dt again. New dt = " << dt;
-    }
+    // if ((update_counter%increase_dt == 0) && adaptive_dt && did_update){
+    //     dt *= 2.0;
+    //     set_timestep(dt*2.0);
+    //     cout << "Try to increase dt again. New dt = " << dt;
+    // }
 
     cout << "Energy: " << new_energy << endl;
+    
+    if (this->khachaturyan.num_models() > 0){
+        cout << "Strain energy per volume precipitate " << this->khachaturyan.get_last_strain_energy() << endl;
+    }
 }
 
 template<int dim>
@@ -414,8 +463,59 @@ void CHGL<dim>::save_noise_realization(const string &fname, unsigned int field) 
 
 template<int dim>
 void CHGL<dim>::set_raised_cosine_filter(double omega_cut, double roll_off){
+    if (ft_filter) delete ft_filter;
+
     ft_filter = new RaisedCosine(omega_cut, roll_off);
     own_ft_filter_ptr = true;
+
+    cout << "Using raised cosing filter. Omega_cut: " << omega_cut << ". Roll off: " << roll_off << endl;
+}
+
+template<int dim>
+void CHGL<dim>::set_gaussian_filter(double width){
+    if (ft_filter) delete ft_filter;
+
+    ft_filter = new GaussianFilter(width);
+    own_ft_filter_ptr = true;
+    cout << "Using gaussian filter. Omega_cut: " << width << endl;
+}
+
+template<int dim>
+void CHGL<dim>::calculate_strain_contrib(const ft_grid_t<dim> &grid_in, ft_grid_t<dim> &out){
+    vector<int> shape_fields;
+    for (unsigned int i=0;i<dim;i++){
+        shape_fields.push_back(i+1);
+    }
+
+    ft_grid_t<dim> func_deriv(grid_in);
+    // Get the realspace functional derivative
+    this->khachaturyan.functional_derivative(grid_in, func_deriv, shape_fields);
+
+    // Fourier transform the functional derivative
+    this->fft->execute(func_deriv, out, FFTW_FORWARD, shape_fields);
+}
+
+template<int dim>
+double CHGL<dim>::deriv_vol_interpolating_function(double n) const{
+    double nmax = sqrt(2.0/3.0); // From Landau polynomial fit
+    double value = 6*(n/nmax) - 6*pow(n/nmax, 2);
+    if ((n < 0.0) || (n > nmax)){
+        value = 0.0;
+    }
+    return value;
+}
+
+template<int dim>
+double CHGL<dim>::lagrange_multiplier(double rhs, double zeroth_vol_interp){
+    if (abs(zeroth_vol_interp) < 1E-6){
+        return 0.0;
+    }
+    return rhs/zeroth_vol_interp;
+}
+
+template<int dim>
+void CHGL<dim>::conserve_volume(unsigned int gl_field){
+    conserved_gl_fields.insert(gl_field);
 }
 
 // Explicit instantiations

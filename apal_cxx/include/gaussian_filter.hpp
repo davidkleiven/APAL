@@ -1,32 +1,25 @@
-#ifndef RAISED_COSINE_H
-#define RAISED_COSINE_H
+#ifndef GAUSSIAN_FILTER_H
+#define GAUSSIAN_FILTER_H
 #include "fourier_domain_filter.hpp"
 
-class RaisedCosine: public FourierDomainFilter{
+class GaussianFilter: public FourierDomainFilter{
 public:
-    RaisedCosine(double omega_cut, double roll_off): omega_cut(omega_cut), roll_off(roll_off){};
-
-    /** Evaluate the filter function */
-    double evaluate(double omega) const;
-
-    /** Return minimum angular frequency before filtering kicks in */
-    double omega_min() const;
-
-    /** Return the frequency beyond which all frequencies are damped */
-    double omega_max() const;
+    GaussianFilter(double width): width(width){};
 
     virtual void apply(MMSP::grid<2, MMSP::vector<fftw_complex> > &grid) const override;
     virtual void apply(MMSP::grid<3, MMSP::vector<fftw_complex> > &grid) const override;
+
+    double evaluate(double omega) const;
 private:
-    double omega_cut{0.0};
-    double roll_off{0.0};
+    double width{0.0};
 
     template<int dim>
     void apply_generic(MMSP::grid<dim, MMSP::vector<fftw_complex> > &gr) const;
 };
 
+
 template<int dim>
-void RaisedCosine::apply_generic(MMSP::grid<dim, MMSP::vector<fftw_complex> > &gr) const{
+void GaussianFilter::apply_generic(MMSP::grid<dim, MMSP::vector<fftw_complex> > &gr) const{
     double L = MMSP::xlength(gr);
     for (unsigned int node=0;node<MMSP::nodes(gr);node++){
         MMSP::vector<int> pos = gr.position(node);
@@ -44,4 +37,5 @@ void RaisedCosine::apply_generic(MMSP::grid<dim, MMSP::vector<fftw_complex> > &g
         }
     }
 };
+
 #endif
