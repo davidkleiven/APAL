@@ -127,5 +127,11 @@ protected:
 
     /** Calculate the lagrange multiplier */
     double lagrange_multiplier(double rhs, double zeroth_vol_interp);
+
+    /** Calculate the total variation */
+    void total_variation(const ft_grid_t<dim> &grid_in, std::vector<double> &tv) const;
+
+    /** Decreasing TV */
+    bool tv_is_decreasing(const std::vector<double> &old_tv, const std::vector<double> &new_tv) const;
 };
 #endif

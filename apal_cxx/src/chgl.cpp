@@ -81,6 +81,10 @@ void CHGL<dim>::update(int nsteps){
     MMSP::grid<dim, MMSP::vector<fftw_complex> > fourier_strain_func_deriv(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > volume_interpolating_function(gr);
     MMSP::grid<dim, MMSP::vector<fftw_complex> > ft_volume_interpolating_function(gr);
+    vector<double> current_tv(MMSP::fields(gr));
+    fill(current_tv.begin(), current_tv.end(), 0.0);
+    vector<double> new_tv(MMSP::fields(gr));
+    unsigned int num_steps_filter_applied = 0;
 
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > temp(gr);
 	// MMSP::grid<dim, MMSP::vector<fftw_complex> > new_gr(gr);
@@ -218,7 +222,13 @@ void CHGL<dim>::update(int nsteps){
         // exit(1);
 
         if (ft_filter != nullptr){
-            ft_filter->apply(ft_fields);
+            total_variation(ft_fields, new_tv);
+
+            if (!tv_is_decreasing(current_tv, new_tv)){
+                ft_filter->apply(ft_fields);
+                num_steps_filter_applied += 1;
+            }
+            current_tv = new_tv;
         }
 
         // Inverse Fourier transform --> output into gr
@@ -257,6 +267,10 @@ void CHGL<dim>::update(int nsteps){
     
     if (this->khachaturyan.num_models() > 0){
         cout << "Strain energy per volume precipitate " << this->khachaturyan.get_last_strain_energy() << endl;
+    }
+
+    if (num_steps_filter_applied > 0){
+        cout << "Filter applied in " << static_cast<double>(num_steps_filter_applied)*100/nsteps << " percent of the steps\n";
     }
 }
 
@@ -529,6 +543,37 @@ double CHGL<dim>::lagrange_multiplier(double rhs, double zeroth_vol_interp){
 template<int dim>
 void CHGL<dim>::conserve_volume(unsigned int gl_field){
     conserved_gl_fields.insert(gl_field);
+}
+
+template<int dim>
+void CHGL<dim>::total_variation(const ft_grid_t<dim> &grid_in, vector<double> &tv) const{
+    tv.resize(MMSP::fields(grid_in));
+    for (unsigned int i=0;i<tv.size();i++){
+        tv[i] = 0.0;
+    }
+
+    double ft_norm_factor = MMSP::nodes(grid_in);
+    for (unsigned int node=0;node<MMSP::nodes(grid_in);node++){
+        MMSP::vector<int> pos = grid_in.position(node);
+        MMSP::vector<double> k_vec(pos.length());
+        k_vector(pos, k_vec, this->L);
+        for (unsigned int field=0;field<MMSP::fields(grid_in);field++){
+        for (unsigned int dir=0;dir<dim;dir++){
+            double power = pow(k_vec[dir]*real(grid_in(node)[field]), 2) + pow(k_vec[dir]*imag(grid_in(node)[field]), 2);
+            tv[field] += power/ft_norm_factor;
+        }
+        }
+    }
+}
+
+template<int dim>
+bool CHGL<dim>::tv_is_decreasing(const std::vector<double> &old_tv, const std::vector<double> &new_tv) const{
+    for (unsigned int i=0;i<old_tv.size();i++){
+        if (new_tv[i] > old_tv[i]){
+            return false;
+        }
+    }
+    return true;
 }
 
 // Explicit instantiations
