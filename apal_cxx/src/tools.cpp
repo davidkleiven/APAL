@@ -258,3 +258,11 @@ bool is_origin(const MMSP::vector<double> &vec){
     }
     return true;
 }
+
+double ln_factorial(unsigned int value){
+    double ln_fact = 0.0;
+    for (int i=value;i>0;i--){
+        ln_fact += log(i);
+    }
+    return ln_fact;
+}
