@@ -190,3 +190,19 @@ cdef class PyCHGL:
             self.thisptr2D.conserve_volume(gl_field)
         elif self.dim == 3:
             self.thisptr3D.conserve_volume(gl_field)
+
+    def set_conc_type_cahn_hilliard(self):
+        if self.dim == 1:
+            self.thisptr1D.set_conc_type_cahn_hilliard()
+        elif self.dim == 2:
+            self.thisptr2D.set_conc_type_cahn_hilliard()
+        elif self.dim == 3:
+            self.thisptr3D.set_conc_type_cahn_hilliard()
+
+    def set_conc_type_allen_cahn(self):
+        if self.dim == 1:
+            self.thisptr1D.set_conc_type_allen_cahn()
+        elif self.dim == 2:
+            self.thisptr2D.set_conc_type_allen_cahn()
+        elif self.dim == 3:
+            self.thisptr3D.set_conc_type_allen_cahn()
