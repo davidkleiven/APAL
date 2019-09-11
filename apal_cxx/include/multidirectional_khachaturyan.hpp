@@ -127,20 +127,22 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
         // Pre-calculate effective stresses
         std::map<unsigned int, mat3x3> eff_stresses;
         std::map<unsigned int, unsigned int> b_tensor_indx;
+        index_map(b_tensor_indx);
         int counter = 0;
     
         for (auto iter=strain_models.begin(); iter != strain_models.end();++iter){
             iter->second.effective_stress(eff_stresses[iter->first]);
-            b_tensor_indx[iter->first] = counter++;
         }
         
         // Calculate the inner product between the effective stress and misfit strain
         mat3x3 misfit_energy;
-        for (unsigned int field1=0;field1 < shape_fields.size();field1++)
-        for (unsigned int field2=0;field2 < shape_fields.size();field2++){
-            unsigned int indx = b_tensor_indx[field1];
-            unsigned int indx2 = b_tensor_indx[field2];
-            misfit_energy[indx][indx2] = contract_tensors(eff_stresses[shape_fields[field1]], strain_models[shape_fields[field2]].get_misfit());
+        for (auto field1 : shape_fields)
+        for (auto field2 : shape_fields){
+            // unsigned int indx = b_tensor_indx[field1];
+            // unsigned int indx2 = b_tensor_indx[field2];
+            unsigned int i1 = b_tensor_indx.at(field1);
+            unsigned int i2 = b_tensor_indx.at(field2);
+            misfit_energy[i1][i2] = contract_tensors(eff_stresses[field1], strain_models[field2].get_misfit());
         }
 
         if (logger<dim>() != nullptr){
@@ -203,23 +205,25 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
             }
 
             // Update the shape fields
-            for (unsigned int field1=0;field1<shape_fields.size();field1++){
-                int indx = b_tensor_indx[field1];
-                int field_indx1 = shape_fields[field1];
-                real(temp_grid(node)[field_indx1]) = 0.0;
-                real(temp_grid2(node)[field_indx1]) = 0.0;
-                imag(temp_grid(node)[field_indx1]) = 0.0;
-                imag(temp_grid2(node)[field_indx1]) = 0.0;
-                for (unsigned int field2=0;field2<shape_fields.size();field2++){
+            //for (unsigned int field1=0;field1<shape_fields.size();field1++){
+            for (auto field1 : shape_fields){
+                // int indx = b_tensor_indx[field1];
+                // int field_indx1 = shape_fields[field1];
+                real(temp_grid(node)[field1]) = 0.0;
+                real(temp_grid2(node)[field1]) = 0.0;
+                imag(temp_grid(node)[field1]) = 0.0;
+                imag(temp_grid2(node)[field1]) = 0.0;
+                //for (unsigned int field2=0;field2<shape_fields.size();field2++){
+                unsigned int i1 = b_tensor_indx.at(field1);
+                for (auto field2 : shape_fields){
+                    // int indx2 = b_tensor_indx[field2];
+                    // int field_indx2 = shape_fields[field2];
+                    unsigned int i2 = b_tensor_indx.at(field2);
+                    real(temp_grid(node)[field1]) += B_tensor[i1][i2]*real(grid_out(node)[field2]);
+                    imag(temp_grid(node)[field1]) += B_tensor[i1][i2]*imag(grid_out(node)[field2]);
 
-                    int indx2 = b_tensor_indx[field2];
-                    int field_indx2 = shape_fields[field2];
-
-                    real(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*real(grid_out(node)[field_indx2]);
-                    imag(temp_grid(node)[field_indx1]) += B_tensor[indx][indx2]*imag(grid_out(node)[field_indx2]);
-
-                    real(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*real(shape_squared(node)[field_indx2]);
-                    imag(temp_grid2(node)[field_indx1]) += misfit_energy[indx][indx2]*imag(shape_squared(node)[field_indx2]);
+                    real(temp_grid2(node)[field1]) += misfit_energy[i1][i2]*real(shape_squared(node)[field2]);
+                    imag(temp_grid2(node)[field1]) += misfit_energy[i1][i2]*imag(shape_squared(node)[field2]);
                 }
             }
         }
