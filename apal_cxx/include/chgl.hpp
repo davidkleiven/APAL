@@ -3,6 +3,7 @@
 #include "phase_field_simulation.hpp"
 #include "two_phase_landau_base.hpp"
 #include "fftw_mmsp.hpp"
+#include "concentration_type.hpp"
 #include <set>
 
 #ifdef HAS_FFTW
@@ -84,6 +85,12 @@ public:
 
     /** Conserve volume of the order parameter squared */
     void conserve_volume(unsigned int gl_field);
+
+    /** Set the concentration equation to Allen-Cahn*/
+    void set_conc_type_allen_cahn();
+
+    /** Set the concentration equation to Cahn-Hilliard*/
+    void set_conc_type_cahn_hilliard();
 protected:
     double M;
     double alpha;
@@ -102,6 +109,7 @@ protected:
     const FourierDomainFilter* ft_filter{nullptr};
     bool own_ft_filter_ptr{false};
     std::set<unsigned int> conserved_gl_fields;
+    ConcentrationType_t conc_type{ConcentrationType_t::CAHN_HILLIARD};
 
     interface_vec_t interface;
     const TwoPhaseLandauBase *free_energy{nullptr};

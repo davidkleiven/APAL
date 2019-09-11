@@ -164,10 +164,23 @@ void CHGL<dim>::update(int nsteps){
 
             // imag(ft_fields(i)[0]) = (imag(ft_fields(i)[0])*(1 + stab_coeff*dt*pow(k, 2)) + imag(gr(i)[0])*M*dt*pow(k, 2))/(1.0 + 2*M*dt*alpha*pow(k, 4) + dt*stab_coeff*pow(k, 2));
 
-            double interf_factor = 2*M*dt*alpha*pow(k, 4);
-            double factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
-            real(ft_fields(i)[0]) = real(ft_fields(i)[0])*factor - real(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
-            imag(ft_fields(i)[0]) = imag(ft_fields(i)[0])*factor - imag(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
+            double interf_factor = 0.0;
+            double factor = 0.0;
+            switch (conc_type){
+                case ConcentrationType_t::CAHN_HILLIARD:
+                    interf_factor = 2*M*dt*alpha*pow(k, 4);
+                    factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+                    real(ft_fields(i)[0]) = real(ft_fields(i)[0])*factor - real(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
+                    imag(ft_fields(i)[0]) = imag(ft_fields(i)[0])*factor - imag(gr(i)[0])*M*dt*pow(k, 2)/(1.0 + 0.5*interf_factor);
+                    break;
+                case ConcentrationType_t::ALLEN_CAHN:
+                    interf_factor = 2*M*dt*alpha*pow(k, 2);
+                    factor = (1 - 0.5*interf_factor)/(1 + 0.5*interf_factor);
+                    real(ft_fields(i)[0]) = real(ft_fields(i)[0])*factor - real(gr(i)[0])*M*dt/(1.0 + 0.5*interf_factor);
+                    imag(ft_fields(i)[0]) = imag(ft_fields(i)[0])*factor - imag(gr(i)[0])*M*dt/(1.0 + 0.5*interf_factor);
+                    break;
+            }
+            
 
             // Update the GL equations
             for (unsigned int field=1;field<MMSP::fields(gr);field++){
@@ -575,6 +588,17 @@ bool CHGL<dim>::tv_is_decreasing(const std::vector<double> &old_tv, const std::v
     }
     return true;
 }
+
+template<int dim>
+void CHGL<dim>::set_conc_type_allen_cahn(){
+    conc_type = ConcentrationType_t::ALLEN_CAHN;
+}
+
+template<int dim>
+void CHGL<dim>::set_conc_type_cahn_hilliard(){
+    conc_type = ConcentrationType_t::CAHN_HILLIARD;
+}
+
 
 // Explicit instantiations
 template class CHGL<1>;
