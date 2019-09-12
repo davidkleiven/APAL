@@ -17,6 +17,7 @@ template<int dim>
 using ft_grid_t = MMSP::grid<dim, MMSP::vector<fftw_complex> >;
 
 typedef std::vector<int> ivec_t;
+typedef std::map<unsigned int, std::map<unsigned int, double> > sparse_mat_t;
 
 class MultidirectionalKhachaturyan{
     public:
@@ -126,8 +127,8 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
 
         // Pre-calculate effective stresses
         std::map<unsigned int, mat3x3> eff_stresses;
-        std::map<unsigned int, unsigned int> b_tensor_indx;
-        index_map(b_tensor_indx);
+        // std::map<unsigned int, unsigned int> b_tensor_indx;
+        // index_map(b_tensor_indx);
         int counter = 0;
     
         for (auto iter=strain_models.begin(); iter != strain_models.end();++iter){
@@ -135,19 +136,19 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
         }
         
         // Calculate the inner product between the effective stress and misfit strain
-        mat3x3 misfit_energy;
+        sparse_mat_t misfit_energy;
         for (auto field1 : shape_fields)
         for (auto field2 : shape_fields){
             // unsigned int indx = b_tensor_indx[field1];
             // unsigned int indx2 = b_tensor_indx[field2];
-            unsigned int i1 = b_tensor_indx.at(field1);
-            unsigned int i2 = b_tensor_indx.at(field2);
-            misfit_energy[i1][i2] = contract_tensors(eff_stresses[field1], strain_models[field2].get_misfit());
+            // unsigned int i1 = b_tensor_indx.at(field1);
+            // unsigned int i2 = b_tensor_indx.at(field2);
+            misfit_energy[field1][field2] = contract_tensors(eff_stresses[field1], strain_models[field2].get_misfit());
         }
 
         if (logger<dim>() != nullptr){
             logger<dim>()->eff_stresses = eff_stresses;
-            logger<dim>()->b_tensor_indx = b_tensor_indx;
+            //logger<dim>()->b_tensor_indx = b_tensor_indx;
         }
 
         ft_grid_t<dim> temp_grid(grid_in);
@@ -182,25 +183,22 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
 
             double *unit_vec_raw_ptr = &(k_vec[0]);
             mat3x3 G;
-            mat3x3 B_tensor;
+            sparse_mat_t B_tensor;
             strain_models.begin()->second.green_function(G, unit_vec_raw_ptr);
 
             if (is_origin){
-                for (unsigned int i=0;i<3;i++)
-                for (unsigned int j=0;j<3;j++){
-                    B_tensor[i][j] = 0.0;
+                for (auto field1 : shape_fields)
+                for (auto field2 : shape_fields){
+                    B_tensor[field1][field2] = 0.0;
                 }
             }
             else{
-                unsigned int row = 0;
-                unsigned int col = 0;
                 for (auto iter1=eff_stresses.begin(); iter1 != eff_stresses.end(); ++iter1){
-                    col = 0;
+                    //unsigned int row = b_tensor_indx.at(iter1->first);
                     for (auto iter2=eff_stresses.begin(); iter2 != eff_stresses.end(); ++iter2){
-                        B_tensor[row][col] = B_tensor_element(k_vec, G, iter1->second, iter2->second);
-                        col += 1;
+                        //unsigned int col = b_tensor_indx.at(iter2->first);
+                        B_tensor[iter1->first][iter2->first] = B_tensor_element(k_vec, G, iter1->second, iter2->second);
                     }
-                    row += 1;
                 }
             }
 
@@ -214,16 +212,16 @@ void MultidirectionalKhachaturyan::functional_derivative(const ft_grid_t<dim> &g
                 imag(temp_grid(node)[field1]) = 0.0;
                 imag(temp_grid2(node)[field1]) = 0.0;
                 //for (unsigned int field2=0;field2<shape_fields.size();field2++){
-                unsigned int i1 = b_tensor_indx.at(field1);
+                //unsigned int i1 = b_tensor_indx.at(field1);
                 for (auto field2 : shape_fields){
                     // int indx2 = b_tensor_indx[field2];
                     // int field_indx2 = shape_fields[field2];
-                    unsigned int i2 = b_tensor_indx.at(field2);
-                    real(temp_grid(node)[field1]) += B_tensor[i1][i2]*real(grid_out(node)[field2]);
-                    imag(temp_grid(node)[field1]) += B_tensor[i1][i2]*imag(grid_out(node)[field2]);
+                    //unsigned int i2 = b_tensor_indx.at(field2);
+                    real(temp_grid(node)[field1]) += B_tensor[field1][field2]*real(grid_out(node)[field2]);
+                    imag(temp_grid(node)[field1]) += B_tensor[field1][field2]*imag(grid_out(node)[field2]);
 
-                    real(temp_grid2(node)[field1]) += misfit_energy[i1][i2]*real(shape_squared(node)[field2]);
-                    imag(temp_grid2(node)[field1]) += misfit_energy[i1][i2]*imag(shape_squared(node)[field2]);
+                    real(temp_grid2(node)[field1]) += misfit_energy[field1][field2]*real(shape_squared(node)[field2]);
+                    imag(temp_grid2(node)[field1]) += misfit_energy[field2][field2]*imag(shape_squared(node)[field2]);
                 }
             }
         }
