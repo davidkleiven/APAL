@@ -237,7 +237,7 @@ void CHGL<dim>::update(int nsteps){
         if (ft_filter != nullptr){
             total_variation(ft_fields, new_tv);
 
-            if (!tv_is_decreasing(current_tv, new_tv)){
+            if (!tv_is_decreasing(current_tv, new_tv) && (step % 5 == 0)){
                 ft_filter->apply(ft_fields);
                 num_steps_filter_applied += 1;
             }
