@@ -50,3 +50,7 @@ cdef extern from "chgl.hpp":
         void add_strain_model(Khachaturyan model, int field)
 
         void conserve_volume(unsigned int field)
+
+        void set_conc_type_cahn_hilliard()
+
+        void set_conc_type_allen_cahn()
