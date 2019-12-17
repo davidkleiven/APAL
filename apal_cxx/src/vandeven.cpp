@@ -56,7 +56,7 @@ double Vandeven::prefactor() const{
 }
 
 double Vandeven::evaluate(double omega) const{
-    double omega_max = PI/2.0;
+    double omega_max = PI;
     double scaled_omega = omega/omega_max;
 
     if (scaled_omega > 1.0){
