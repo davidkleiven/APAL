@@ -16,6 +16,7 @@
 #include "raised_cosine.cpp"
 #include "gaussian_filter.cpp"
 #include "vandeven.cpp"
+#include "pfc1m.cpp"
 
 // Test files
 #include "test_multidirectional_khachaturyan.cpp"

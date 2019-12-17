@@ -2,6 +2,7 @@
 #define FFTW_MMSP_H
 #include "MMSP.grid.h"
 #include "MMSP.vector.h"
+#include "MMSP.scalar.h"
 #include "tools.hpp"
 #include <vector>
 #include <omp.h>
@@ -15,6 +16,7 @@
 
 template<int dim>
 using ft_grid_t = MMSP::grid<dim, MMSP::vector<fftw_complex> >;
+using cdouble = MMSP::scalar<std::complex<double> >
 
 class FFTW{
     public:
@@ -30,7 +32,7 @@ class FFTW{
         void execute(const std::vector<double> &vec, std::vector<fftw_complex> &out, int dir);
 
         template<int dim>
-        void execute(const MMSP::grid<dim, fftw_complex> &grid_in, MMSP::grid<dim, fftw_complex> &grid_out, int direction);
+        void execute(const MMSP::grid<dim, cdouble> &grid_in, MMSP::grid<dim, cdouble> &grid_out, int direction);
 
         /** Export buffer */
         void save_buffer(const std::string &fname, ExportType exp) const;
@@ -126,7 +128,7 @@ void FFTW::execute(const ft_grid_t<dim> & grid_in, ft_grid_t<dim> &grid_out, int
 };
 
 template<int dim>
-void FFTW::execute(const MMSP::grid<dim, fftw_complex> &grid_in, MMSP::grid<dim, fftw_complex> &grid_out, int direction){
+void FFTW::execute(const MMSP::grid<dim, cdouble> &grid_in, MMSP::grid<dim, cdouble> &grid_out, int direction){
     #ifdef HAS_FFTW
     double normalization = 1.0;
 
@@ -139,7 +141,8 @@ void FFTW::execute(const MMSP::grid<dim, fftw_complex> &grid_in, MMSP::grid<dim,
         #pragma omp parallel for
         #endif
         for (unsigned int i=0;i<MMSP::nodes(grid_in);i++){
-            buffer[i] = grid_in(i);
+            real(buffer[i]) = real(grid_in(i));
+            imag(buffer[i]) = imag(grid_in(i));
         }
 
         // Perform the FFT
@@ -158,7 +161,8 @@ void FFTW::execute(const MMSP::grid<dim, fftw_complex> &grid_in, MMSP::grid<dim,
         for (unsigned int i=0;i<MMSP::nodes(grid_out);i++){
             real(buffer2[i]) /= normalization;
             imag(buffer2[i]) /= normalization;
-            grid_out(i) = buffer2[i];
+            real(grid_out(i)) = real(buffer2[i]);
+            imag(grid_out(i)) = imag(buffer2[i]);
         }
     #endif
 };

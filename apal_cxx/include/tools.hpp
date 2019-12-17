@@ -2,6 +2,7 @@
 #define PHASEFIELD_TOOLS_H
 #include "MMSP.grid.h"
 #include "MMSP.vector.h"
+#include "MMSP.scalar.h"
 #include "fftw_complex_placeholder.hpp"
 #include "khachaturyan.hpp"
 #include <vector>
@@ -19,6 +20,7 @@
 #endif
 
 typedef std::array< std::array<double, 3>, 3> mat3x3;
+using cdouble = MMSP::scalar<std::complex<double> >
 
 #ifdef HAS_FFTW
     double& real(fftw_complex number){
@@ -37,6 +39,14 @@ typedef std::array< std::array<double, 3>, 3> mat3x3;
         return number.im;
     }
 #endif
+
+double& real(cdouble number){
+    return number().re
+}
+
+double &imag(cdouble number){
+    return number().im
+}
 
 // Forward-declaration
 class SparseMatrix;
